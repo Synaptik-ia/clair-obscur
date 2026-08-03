@@ -24,6 +24,11 @@ if (isset($conn)) {
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         $stats_menu['liseuse'] = $stmt->fetch()['total'];
+
+        $sql = "SELECT COUNT(*) as total FROM unanswered_questions WHERE status = 'pending'";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $stats_menu['questions_pending'] = $stmt->fetch()['total'];
     } catch (Exception $e) {
         $stats_menu = [];
     }
@@ -48,6 +53,9 @@ $full_path = $current_dir . '/' . $current_page;
     <a href="nouvelles.php" class="list-group-item list-group-item-action <?php echo $current_page == 'nouvelles.php' || $current_page == 'nouvelle_form.php' ? 'active' : ''; ?>">
         <i class="fas fa-newspaper"></i> Nouvelles
     </a>
+    <a href="extraits.php" class="list-group-item list-group-item-action <?php echo $current_page == 'extraits.php' ? 'active' : ''; ?>">
+        <i class="fas fa-quote-right"></i> Extraits
+    </a>
     <a href="liseuse_config.php" class="list-group-item list-group-item-action <?php echo strpos($current_page, 'liseuse') !== false ? 'active' : ''; ?>">
         <i class="fas fa-book-open"></i> Liseuse
         <?php if (!empty($stats_menu['liseuse']) && $stats_menu['liseuse'] > 0): ?>
@@ -68,6 +76,15 @@ $full_path = $current_dir . '/' . $current_page;
         <?php if (!empty($stats_menu['commentaires_attente']) && $stats_menu['commentaires_attente'] > 0): ?>
             <span class="badge bg-danger float-end"><?php echo $stats_menu['commentaires_attente']; ?></span>
         <?php endif; ?>
+    </a>
+    <a href="questions.php" class="list-group-item list-group-item-action <?php echo $current_page == 'questions.php' ? 'active' : ''; ?>">
+        <i class="fas fa-question-circle"></i> Questions
+        <?php if (!empty($stats_menu['questions_pending']) && $stats_menu['questions_pending'] > 0): ?>
+            <span class="badge bg-warning float-end"><?php echo $stats_menu['questions_pending']; ?></span>
+        <?php endif; ?>
+    </a>
+    <a href="pages_site.php" class="list-group-item list-group-item-action <?php echo $current_page == 'pages_site.php' ? 'active' : ''; ?>">
+        <i class="fas fa-sitemap"></i> Pages du site
     </a>
     <a href="seo.php" class="list-group-item list-group-item-action <?php echo $current_page == 'seo.php' ? 'active' : ''; ?>">
         <i class="fas fa-chart-line"></i> Référencement SEO

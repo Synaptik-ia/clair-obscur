@@ -12,9 +12,8 @@ $message_envoye = false;
 $erreurs = [];
 
 // Configuration reCAPTCHA v3
-// Inscrivez-vous sur https://www.google.com/recaptcha/admin pour obtenir vos clés
-define('RECAPTCHA_SITE_KEY', '6LeWgvksAAAAAGVmVZI0AZU7Wj3MOczrt34q2_VZ');
-define('RECAPTCHA_SECRET_KEY', '6LeWgvksAAAAAGywccutrUuCHFywYgJgMP3Zj8eD');
+define('RECAPTCHA_SITE_KEY', env('RECAPTCHA_SITE_KEY', ''));
+define('RECAPTCHA_SECRET_KEY', env('RECAPTCHA_SECRET_KEY', ''));
 
 // Rate limiting pour le formulaire de contact
 if (!rateLimit('contact_form', 5, 300)) {

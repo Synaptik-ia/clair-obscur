@@ -67,6 +67,7 @@
 </footer>
 
 <!-- Scripts -->
+<script>var SITE_URL = '<?php echo SITE_URL; ?>';</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?php echo SITE_URL; ?>assets/js/main.js"></script>
 
@@ -146,7 +147,7 @@ if (window.location.hostname !== '') {
 	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
 
 	createChat({
-		webhookUrl: 'https://synaptikia.app.n8n.cloud/webhook/f26dc497-54c0-4ea5-8b16-130e3a433a93/chat',
+		webhookUrl: '<?php echo env('N8N_WEBHOOK_URL', ''); ?>',
 	webhookConfig: {
 		method: 'POST',
 		headers: {}
@@ -242,13 +243,13 @@ const CHAT_OPENED_KEY = 'synaptik_chat_auto_opened';
 
 
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-66VWG0RS8D"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo env('GA_TRACKING_ID', ''); ?>"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-66VWG0RS8D');
+  gtag('config', '<?php echo env('GA_TRACKING_ID', ''); ?>');
 </script>
 
 </body>

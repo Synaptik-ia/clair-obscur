@@ -1,12 +1,21 @@
 <?php
 // config/database.php - Configuration base de données
 
+require_once __DIR__ . '/env.php';
+
 class Database {
-    private $host = "localhost";
-    private $db_name = "clair-obscur";
-    private $username = "clair-obscur";     // À modifier selon votre configuration
-    private $password = "sosVedknip09@";         // À modifier selon votre configuration
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     private $conn;
+
+    public function __construct() {
+        $this->host = env('DB_HOST', 'localhost');
+        $this->db_name = env('DB_NAME', 'clair-obscur');
+        $this->username = env('DB_USER', 'clair-obscur');
+        $this->password = env('DB_PASS', '');
+    }
 
  public function getConnection() {
         $this->conn = null;
@@ -31,21 +40,21 @@ class Database {
 }
 
 // Configuration générale du site
-define('SITE_NAME', 'Clair-Obscur Éditions');
-define('SITE_URL', 'https://clair-obscur-editions.com/');  // À modifier en production
-define('ADMIN_EMAIL', 'contact@clair-obscur-editions.com');
+define('SITE_NAME', env('SITE_NAME', 'Clair-Obscur Éditions'));
+define('SITE_URL', env('SITE_URL', 'https://clair-obscur-editions.com/'));
+define('ADMIN_EMAIL', env('ADMIN_EMAIL', 'contact@clair-obscur-editions.com'));
 
-// PayPal configuration (mode sandbox pour tests)
-define('PAYPAL_CLIENT_ID', 'VOTRE_CLIENT_ID_ICI');
-define('PAYPAL_SECRET', 'VOTRE_SECRET_ICI');
-define('PAYPAL_MODE', 'sandbox'); // sandbox ou live
+// PayPal configuration
+define('PAYPAL_CLIENT_ID', env('PAYPAL_CLIENT_ID', ''));
+define('PAYPAL_SECRET', env('PAYPAL_SECRET', ''));
+define('PAYPAL_MODE', env('PAYPAL_MODE', 'sandbox'));
 
 /// Session start avec paramètres de sécurité
 if (session_status() === PHP_SESSION_NONE) {
     // Paramètres de session sécurisés
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
-    ini_set('session.cookie_secure', 0); // Passer à 1 en HTTPS
+    ini_set('session.cookie_secure', 1);
     ini_set('session.cookie_samesite', 'Strict');
     session_start();
 }

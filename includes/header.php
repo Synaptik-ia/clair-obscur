@@ -2,22 +2,6 @@
 // Ajouter la sécurité au début du header
 require_once __DIR__ . '/security.php';
 
-// Vérification CSRF pour les requêtes POST (sauf exceptions)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Pages autorisées sans token CSRF
-    $exempt_pages = ['paiement/ipn.php', 'panier/ajouter_ajax.php'];
-    $current_page = basename($_SERVER['PHP_SELF']);
-    $current_dir = basename(dirname($_SERVER['PHP_SELF']));
-    $full_path = $current_dir . '/' . $current_page;
-    
-    if (!in_array($full_path, $exempt_pages) && !in_array($current_page, $exempt_pages)) {
-        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-            logAction('CSRF_ATTEMPT', 'Tentative CSRF détectée sur ' . $_SERVER['PHP_SELF']);
-            die('Erreur de sécurité. Veuillez rafraîchir la page et réessayer.');
-        }
-    }
-}
-
 // Générer un token CSRF pour les formulaires
 $csrf_token = generateCSRFToken();
 ?>

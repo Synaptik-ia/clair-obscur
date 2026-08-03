@@ -237,6 +237,7 @@ include 'includes/header.php';
         <h3>Restez informé</h3>
         <p>Inscrivez-vous à notre newsletter pour recevoir nos actualités et nos offres</p>
         <form class="row g-3 justify-content-center" method="POST" action="#">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
             <div class="col-auto">
                 <input type="email" name="newsletter_email" class="form-control" placeholder="Votre email" required>
             </div>

@@ -203,7 +203,7 @@ include '../includes/header.php';
                             <input type="hidden" name="currency_code" value="EUR">
                             <input type="hidden" name="return" value="<?php echo SITE_URL; ?>paiement/validation.php?token=<?php echo $payment_token; ?>&commande=<?php echo $commande_id; ?>">
                             <input type="hidden" name="cancel_return" value="<?php echo SITE_URL; ?>panier/">
-                            <input type="hidden" name="notify_url" value="<?php echo SITE_URL; ?>paiement/ipn.php">
+                            <input type="hidden" name="notify_url" value="<?php echo SITE_URL; ?>ajax/ipn.php">
                             <input type="hidden" name="custom" value="<?php echo $commande_id; ?>">
                             <input type="hidden" name="no_shipping" value="1">
                             <input type="hidden" name="no_note" value="1">

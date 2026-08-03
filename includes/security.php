@@ -266,8 +266,22 @@ function isMaliciousBot() {
 }
 
 
+// Vérification CSRF pour les requêtes POST (sauf exceptions)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $exempt_pages = ['paiement/ipn.php', 'panier/ajouter_ajax.php', 'ajax/ipn.php'];
+    $current_page = basename($_SERVER['PHP_SELF']);
+    $current_dir = basename(dirname($_SERVER['PHP_SELF']));
+    $full_path = $current_dir . '/' . $current_page;
+
+    if (!in_array($full_path, $exempt_pages) && !in_array($current_page, $exempt_pages)) {
+        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
+            logAction('CSRF_ATTEMPT', 'Tentative CSRF détectée sur ' . $_SERVER['PHP_SELF']);
+            die('Erreur de sécurité. Veuillez rafraîchir la page et réessayer.');
+        }
+    }
+}
+
 // Exécuter automatiquement la protection
-sanitizeSuperGlobals();
 scanForInjections();
 
 // Bloquer les bots malveillants

@@ -1,0 +1,74 @@
+2026-05-20 01:46:31 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-20 01:53:24 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-20 01:56:57 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-20 02:00:53 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-20 02:05:15 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-20 02:10:35 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-20 02:12:57 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-20 02:14:55 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/auteur_form.php
+2026-05-21 00:58:45 | User: 0 (non connecté) | IP: 34.9.216.246 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-22 15:29:08 | User: 0 (non connecté) | IP: 140.238.254.59 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-23 02:57:13 | User: 0 (non connecté) | IP: 34.42.34.237 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-23 05:24:55 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/nouvelle_form.php
+2026-05-23 05:43:44 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/nouvelle_form.php
+2026-05-23 05:48:28 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/nouvelle_form.php
+2026-05-23 06:28:38 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/nouvelle_form.php
+2026-05-23 23:39:43 | User: 0 (non connecté) | IP: 142.122.118.254 | Action: CONTACT_FORM | Details: Message envoyé par test@test.com - reCAPTCHA score: 0.9
+2026-05-24 00:03:37 | User: 0 (non connecté) | IP: 142.122.118.254 | Action: CONTACT_FORM | Details: Message envoyé par test@test.com - reCAPTCHA score: 0.9
+2026-05-24 02:00:30 | User: 1 (admin@clair-obscur.com) | IP: 142.122.118.254 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /admin/nouvelle_form.php
+2026-05-25 08:57:51 | User: 0 (non connecté) | IP: 34.9.216.246 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-25 18:21:42 | User: 0 (non connecté) | IP: 217.216.73.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-25 18:21:42 | User: 0 (non connecté) | IP: 217.216.73.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-26 16:30:09 | User: 0 (non connecté) | IP: 74.80.182.68 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-28 06:18:25 | User: 0 (non connecté) | IP: 158.173.156.151 | Action: RECAPTCHA_FAIL | Details: Score: 0.1 - IP: 158.173.156.151
+2026-05-30 20:23:19 | User: 0 (non connecté) | IP: 34.31.88.250 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-30 20:47:30 | User: 0 (non connecté) | IP: 103.75.13.242 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-30 20:47:30 | User: 0 (non connecté) | IP: 103.75.13.242 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-31 23:00:45 | User: 0 (non connecté) | IP: 103.96.72.251 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-05-31 23:00:45 | User: 0 (non connecté) | IP: 103.96.72.251 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-01 02:30:05 | User: 0 (non connecté) | IP: 57.131.20.68 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-01 02:30:05 | User: 0 (non connecté) | IP: 57.131.20.68 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-02 08:32:19 | User: 0 (non connecté) | IP: 103.75.13.242 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-02 08:32:19 | User: 0 (non connecté) | IP: 103.75.13.242 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-04 18:14:33 | User: 0 (non connecté) | IP: 103.75.13.242 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-04 18:14:33 | User: 0 (non connecté) | IP: 103.75.13.242 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-04 21:54:35 | User: 0 (non connecté) | IP: 146.70.52.99 | Action: RECAPTCHA_FAIL | Details: Score: 0.1 - IP: 146.70.52.99
+2026-06-06 08:28:24 | User: 0 (non connecté) | IP: 103.96.72.251 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-06 08:28:24 | User: 0 (non connecté) | IP: 103.96.72.251 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-06 09:39:42 | User: 0 (non connecté) | IP: 40.87.20.23 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-06 09:47:34 | User: 0 (non connecté) | IP: 52.68.63.24 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-06 09:47:34 | User: 0 (non connecté) | IP: 52.68.63.24 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-06 09:47:34 | User: 0 (non connecté) | IP: 52.68.63.24 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-06 09:47:35 | User: 0 (non connecté) | IP: 52.68.63.24 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-10 14:41:47 | User: 0 (non connecté) | IP: 167.86.91.38 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-10 14:41:48 | User: 0 (non connecté) | IP: 167.86.91.38 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-10 23:59:19 | User: 0 (non connecté) | IP: 84.17.52.6 | Action: RECAPTCHA_FAIL | Details: Score: 0.1 - IP: 84.17.52.6
+2026-06-15 16:57:52 | User: 0 (non connecté) | IP: 35.192.232.168 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 21:27:47 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 21:27:47 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 21:27:47 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 21:27:48 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 22:26:17 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 22:26:17 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 22:26:17 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-16 22:26:18 | User: 0 (non connecté) | IP: 18.229.117.243 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-17 02:08:04 | User: 0 (non connecté) | IP: 40.114.79.135 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-17 07:26:08 | User: 0 (non connecté) | IP: 35.192.232.168 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-17 23:23:10 | User: 0 (non connecté) | IP: 15.168.61.199 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-17 23:23:10 | User: 0 (non connecté) | IP: 15.168.61.199 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-17 23:23:10 | User: 0 (non connecté) | IP: 15.168.61.199 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-17 23:23:11 | User: 0 (non connecté) | IP: 15.168.61.199 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-06-29 18:30:32 | User: 0 (non connecté) | IP: 52.225.92.142 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-01 09:19:41 | User: 0 (non connecté) | IP: 64.89.162.181 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-02 23:42:36 | User: 0 (non connecté) | IP: 136.113.9.105 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-06 03:37:28 | User: 0 (non connecté) | IP: 64.89.162.181 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-17 05:34:36 | User: 0 (non connecté) | IP: 34.122.16.212 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 12:01:17 | User: 0 (non connecté) | IP: 34.121.151.18 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 12:01:18 | User: 0 (non connecté) | IP: 34.121.151.18 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 12:01:18 | User: 0 (non connecté) | IP: 34.121.151.18 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 12:01:18 | User: 0 (non connecté) | IP: 34.121.151.18 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 19:46:50 | User: 0 (non connecté) | IP: 34.55.121.224 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 19:46:51 | User: 0 (non connecté) | IP: 34.55.121.224 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 19:46:51 | User: 0 (non connecté) | IP: 34.55.121.224 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php
+2026-07-24 22:15:15 | User: 0 (non connecté) | IP: 152.232.35.108 | Action: RECAPTCHA_FAIL | Details: Score: 0.1 - IP: 152.232.35.108
+2026-07-31 17:35:40 | User: 0 (non connecté) | IP: 4.227.216.131 | Action: CSRF_ATTEMPT | Details: Tentative CSRF détectée sur /index.php

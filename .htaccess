@@ -1,0 +1,262 @@
+# .htaccess - Configuration Apache pour le site Clair-Obscur
+# Sécurité, réécriture d'URL, erreurs personnalisées
+
+Options -Indexes
+Options +FollowSymLinks
+
+# Activer le moteur de réécriture
+RewriteEngine On
+RewriteBase /
+
+# ============================================
+# 1. SÉCURITÉ - Protection des dossiers sensibles
+# ============================================
+
+# Protéger le dossier config
+<FilesMatch "^(config/|includes/|sql/|logs/|vendor/)">
+    Require all denied
+</FilesMatch>
+
+# Protéger les fichiers sensibles
+<FilesMatch "^(config\.php|database\.php|\.htaccess|\.env|\.ini|\.log|\.sql|composer\.json|composer\.lock|package\.json)$">
+    Require all denied
+</FilesMatch>
+
+# Protéger le dossier admin par mot de passe (optionnel - à décommenter)
+# <Directory "/admin">
+#     AuthType Basic
+#     AuthName "Accès restreint - Administration Clair-Obscur"
+#     AuthUserFile "/chemin/vers/.htpasswd"
+#     Require valid-user
+# </Directory>
+
+# ============================================
+# 2. SÉCURITÉ - Headers de protection
+# ============================================
+
+<IfModule mod_headers.c>
+    # Protection XSS
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Empêcher le MIME sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Protection clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Politique de sécurité du contenu (CSP) - à ajuster selon vos besoins
+    # Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; frame-src https://www.paypal.com https://www.sandbox.paypal.com;"
+    
+    # HSTS (HTTP Strict Transport Security) - Activer uniquement en HTTPS
+    # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Référent
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Permissions Policy
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ============================================
+# 3. RÉÉCRITURE D'URL (SEO Friendly)
+# ============================================
+
+# Rediriger www vers non-www (ou l'inverse)
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# Forcer HTTPS (décommenter en production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Réécriture des URLs pour les livres
+RewriteRule ^livre/([0-9]+)/([a-zA-Z0-9_-]+)\.html$ livres/fiche.php?id=$1 [L,QSA]
+RewriteRule ^livres/page/([0-9]+)$ livres/liste.php?page=$1 [L,QSA]
+RewriteRule ^livres/categorie/([a-zA-Z0-9_-]+)$ livres/liste.php?categorie=$1 [L,QSA]
+
+# Réécriture des URLs pour les auteurs
+RewriteRule ^auteur/([0-9]+)/([a-zA-Z0-9_-]+)\.html$ auteurs/fiche.php?id=$1 [L,QSA]
+
+# Réécriture des URLs pour les actualités
+RewriteRule ^actualite/([0-9]+)/([a-zA-Z0-9_-]+)\.html$ nouvelles/article.php?id=$1 [L,QSA]
+RewriteRule ^actualites/page/([0-9]+)$ nouvelles/index.php?page=$1 [L,QSA]
+
+# Réécriture pour les pages statiques
+RewriteRule ^mentions-legales$ mentions-legales.php [L,QSA]
+RewriteRule ^politique-confidentialite$ politique-confidentialite.php [L,QSA]
+
+
+
+# ============================================
+# 5. MISE EN CACHE (Performances)
+# ============================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # CSS, JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    
+    # Polices
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    
+    # HTML, PHP - pas de cache
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/xhtml+xml "access plus 0 seconds"
+    ExpiresByType text/xml "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Cache-Control pour les assets
+    <FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|webp|js|css|swf|svg|ttf|woff|woff2)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
+    </FilesMatch>
+    
+    # Pas de cache pour les fichiers dynamiques
+    <FilesMatch "\.(php|html|htm)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+</IfModule>
+
+# ============================================
+# 6. COMPRESSION GZIP
+# ============================================
+
+<IfModule mod_deflate.c>
+    # Compresser les types de fichiers
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    
+    # Ne pas compresser les images déjà compressées
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp)$ no-gzip dont-vary
+</IfModule>
+
+# ============================================
+# 7. BLOCAGE DES IP MALVEILLANTES (Optionnel)
+# ============================================
+
+# Bloquer des IP spécifiques - à décommenter et personnaliser
+# <Limit GET POST>
+#     order allow,deny
+#     allow from all
+#     deny from 123.45.67.89
+#     deny from 98.76.54.32
+# </Limit>
+
+# ============================================
+# 8. PROTECTION CONTRE LE HOTLINKING
+# ============================================
+
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https://(www\.)?clair-obscur-editions\.com [NC]
+    RewriteCond %{HTTP_REFERER} !^http://(www\.)?clair-obscur-editions\.com [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|webp|svg|pdf)$ - [F,L]
+</IfModule>
+
+# ============================================
+# 9. LIMITATION DE LA TAILLE DES FICHIERS UPLOAD
+# ============================================
+
+# Limiter la taille des fichiers uploadés à 20 Mo (admin)
+LimitRequestBody 20971520
+
+# ============================================
+# 10. PROTECTION DU FICHIER .HTACCESS LUI-MÊME
+# ============================================
+
+<Files .htaccess>
+    Require all denied
+</Files>
+
+# ============================================
+# 11. REDIRECTION 301 (Pour SEO - pages déplacées)
+# ============================================
+
+# Exemples de redirections (personnaliser selon vos besoins)
+# Redirect 301 /ancienne-page.php /nouvelle-page.php
+# Redirect 301 /ancien-dossier/ /nouveau-dossier/
+
+# ============================================
+# 12. EMPÊCHER L'AFFICHAGE DU RÉPERTOIRE
+# ============================================
+
+Options -Indexes
+
+# ============================================
+# 13. JEU DE CARACTÈRES PAR DÉFAUT
+# ============================================
+
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .php .css .js .xml .json
+
+# ============================================
+# 14. TIMEZONE
+# ============================================
+
+SetEnv TZ Europe/Paris
+
+# ============================================
+# 15. LIMITATION DES REQUÊTES (Protection DDOS basique)
+# ============================================
+
+<IfModule mod_ratelimit.c>
+    SetOutputFilter RATE_LIMIT
+    SetEnv rate-limit 400
+</IfModule>
+
+# ============================================
+# RÈGLES POUR LA LISEUSE
+# ============================================
+
+# Rediriger /liseuse/vers/le/slug vers liseuse/index.php?slug=le-slug
+RewriteRule ^liseuse/([a-zA-Z0-9_-]+)$ liseuse/index.php?slug=$1 [L,QSA]
+
+# Conserver la compatibilité avec l'ancien format /liseuse/?id=1
+RewriteRule ^liseuse/?$ liseuse/index.php [L,QSA]
+
+# ============================================
+# RÈGLES POUR LES LIVRES
+# ============================================
+
+# Réécriture des URLs pour les livres
+RewriteRule ^livre/([0-9]+)/([a-zA-Z0-9_-]+)\.html$ livres/fiche.php?id=$1 [L,QSA]
+RewriteRule ^livres/page/([0-9]+)$ livres/liste.php?page=$1 [L,QSA]
+
+# ============================================
+# RÈGLES POUR LES AUTEURS
+# ============================================
+
+RewriteRule ^auteur/([0-9]+)/([a-zA-Z0-9_-]+)\.html$ auteurs/fiche.php?id=$1 [L,QSA]
+
+# ============================================
+# RÈGLES POUR LES ACTUALITÉS
+# ============================================
+
+RewriteRule ^actualite/([0-9]+)/([a-zA-Z0-9_-]+)\.html$ nouvelles/article.php?id=$1 [L,QSA]
+RewriteRule ^actualites/page/([0-9]+)$ nouvelles/index.php?page=$1 [L,QSA]
+

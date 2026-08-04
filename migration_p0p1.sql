@@ -20,6 +20,8 @@ ALTER TABLE `livres` ADD INDEX `idx_statut_vente` (`statut_vente`);
 ALTER TABLE `commentaires` ADD INDEX `idx_status` (`status`);
 
 -- Ajout FK CASCADE sur commandes.utilisateur_id
--- (supprime d'abord l'ancienne contrainte si elle existe)
 ALTER TABLE `commandes` DROP FOREIGN KEY IF EXISTS `commandes_ibfk_1`;
 ALTER TABLE `commandes` ADD CONSTRAINT `commandes_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateurs` (`id`) ON DELETE CASCADE;
+
+-- Correction updated_at (valeur par défaut dépréciée)
+ALTER TABLE `site_pages` MODIFY `updated_at` datetime DEFAULT NULL;

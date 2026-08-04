@@ -66,6 +66,20 @@ $social_links = [
     'email' => "mailto:?subject=" . $share_title . "&body=" . $share_url
 ];
 
+// Traitement newsletter (avant tout output HTML)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
+    $newsletter_email = cleanSQL(trim($_POST['newsletter_email']));
+    if (validateEmail($newsletter_email)) {
+        $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
+        $_SESSION['flash_type'] = "success";
+    } else {
+        $_SESSION['flash_message'] = "Veuillez entrer un email valide.";
+        $_SESSION['flash_type'] = "danger";
+    }
+    header('Location: article.php?id=' . $article_id);
+    exit();
+}
+
 include '../includes/header.php';
 ?>
 
@@ -253,21 +267,5 @@ function copyLink() {
 }
 </style>
 
-<?php
-// Traitement newsletter simple
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
-    $newsletter_email = cleanSQL(trim($_POST['newsletter_email']));
-    if (validateEmail($newsletter_email)) {
-        // Ici vous pourriez enregistrer l'email dans une table newsletter
-        $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
-        $_SESSION['flash_type'] = "success";
-    } else {
-        $_SESSION['flash_message'] = "Veuillez entrer un email valide.";
-        $_SESSION['flash_type'] = "danger";
-    }
-    header('Location: article.php?id=' . $article_id);
-    exit();
-}
-
-include '../includes/footer.php';
+<?php include '../includes/footer.php';
 ?>

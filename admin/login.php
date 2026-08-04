@@ -39,8 +39,10 @@ if ($_SESSION['login_attempts'] >= 5 && ($current_time - $_SESSION['last_attempt
     $error = "Trop de tentatives de connexion. Veuillez réessayer dans " . $minutes . " minute(s).";
 }
 
-// Générer un token CSRF pour le formulaire
-$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+// Générer un token CSRF pour le formulaire (une seule fois par session)
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 $page_title = "Connexion Administration - Clair-Obscur";
 

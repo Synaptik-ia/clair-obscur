@@ -8,6 +8,14 @@ $page_title = "Nouveautés & Actualités — Romans érotiques et littérature a
 $page_description = "Retrouvez les nouveautés de Clair-Obscur Éditions : nouvelles parutions, romans érotiques, littérature adulte, actualités éditoriales, annonces d’auteurs et sorties de livres.";
 $keywords = "actualités Clair-Obscur Éditions;news maison d’édition;annonces de publication;lancement de livre;sortie officielle roman;publication à venir;prochains livres;coulisses éditoriales;nouveautés catalogue;agenda éditorial";
 
+// Traitement newsletter (avant tout output HTML)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
+    $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
+    $_SESSION['flash_type'] = "success";
+    header('Location: index.php');
+    exit();
+}
+
 $db = new Database();
 $conn = $db->getConnection();
 
@@ -184,15 +192,5 @@ include '../includes/header.php';
     </div>
 </div>
 
-<?php
-// Traitement newsletter simple
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
-    // Ici vous pourriez enregistrer l'email dans une table newsletter
-    $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
-    $_SESSION['flash_type'] = "success";
-    header('Location: index.php');
-    exit();
-}
-
-include '../includes/footer.php';
+<?php include '../includes/footer.php';
 ?>

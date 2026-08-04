@@ -44,8 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (empty($password)) {
         $erreurs[] = "Le mot de passe est requis.";
-    } elseif (strlen($password) < 6) {
-        $erreurs[] = "Le mot de passe doit contenir au moins 6 caractères.";
+    } elseif (strlen($password) < 8) {
+        $erreurs[] = "Le mot de passe doit contenir au moins 8 caractères.";
+    } elseif (!preg_match('/[A-Z]/', $password)) {
+        $erreurs[] = "Le mot de passe doit contenir au moins une majuscule.";
+    } elseif (!preg_match('/[0-9]/', $password)) {
+        $erreurs[] = "Le mot de passe doit contenir au moins un chiffre.";
     }
     
     if ($password !== $password_confirm) {
@@ -128,6 +132,7 @@ include '../includes/header.php';
                     <?php endif; ?>
                     
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <!-- Informations de connexion -->
                         <h5 class="mb-3"><i class="fas fa-lock"></i> Informations de connexion</h5>
                         

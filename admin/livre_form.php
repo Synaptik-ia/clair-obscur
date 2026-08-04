@@ -114,7 +114,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array($mime_type, $allowed)) {
             $erreurs[] = "Format de couverture non autorisé (JPEG, PNG, WEBP).";
         } else {
-            $ext = pathinfo($_FILES['couverture']['name'], PATHINFO_EXTENSION);
+            $ext = strtolower(pathinfo($_FILES['couverture']['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+                $erreurs[] = "Extension de fichier non autorisée.";
+            } else {
             $filename = 'cover_' . uniqid() . '.' . $ext;
             $destination = '../assets/images/' . $filename;
             
@@ -126,6 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $erreurs[] = "Erreur lors de l'upload de la couverture.";
             }
+            } // fin inner else (extension check)
         }
     }
     
@@ -219,7 +223,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Livre ajouté avec succès.";
         }
         $message_type = "success";
-        
+
+        // Mettre à jour le sitemap si le statut change
+        require_once '../includes/sitemap.php';
+        if ($livre['statut_vente'] === 'non_vendable') {
+            $url = SITE_URL . 'livres/fiche.php?id=' . ($is_edit ? $id : $conn->lastInsertId());
+            $stmt_url = $conn->prepare("DELETE FROM site_pages WHERE url = :url");
+            $stmt_url->execute([':url' => $url]);
+        }
+        generateSitemap($conn);
+
         header("refresh:2;url=livres.php");
     } else {
         $message = implode('<br>', $erreurs);

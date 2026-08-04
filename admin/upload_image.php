@@ -33,8 +33,15 @@ if ($file['size'] > 5 * 1024 * 1024) {
     exit();
 }
 
+// Valider l'extension (whitelist)
+$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+$allowed_extensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+if (!in_array($ext, $allowed_extensions)) {
+    echo json_encode(['error' => 'Extension de fichier non autorisée.']);
+    exit();
+}
+
 // Générer un nom unique
-$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
 $filename = 'editor_' . uniqid() . '_' . time() . '.' . $ext;
 $destination = '../assets/images/' . $filename;
 

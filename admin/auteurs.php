@@ -4,6 +4,7 @@
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/security.php';
+require_once '../includes/sitemap.php';
 
 // Vérifier que l'utilisateur est admin
 redirigerSiNonAdmin();
@@ -43,6 +44,12 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $sql_delete = "DELETE FROM auteurs WHERE id = :id";
         $stmt_delete = $conn->prepare($sql_delete);
         if ($stmt_delete->execute([':id' => $id])) {
+            // Supprimer l'URL du sitemap
+            $url = SITE_URL . 'auteurs/fiche.php?id=' . $id;
+            $stmt_url = $conn->prepare("DELETE FROM site_pages WHERE url = :url");
+            $stmt_url->execute([':url' => $url]);
+            generateSitemap($conn);
+
             $message = "Auteur supprimé avec succès.";
             $message_type = "success";
         } else {

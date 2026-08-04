@@ -44,11 +44,11 @@ RewriteBase /
     # Protection clickjacking
     Header set X-Frame-Options "SAMEORIGIN"
     
-    # Politique de sécurité du contenu (CSP) - à ajuster selon vos besoins
-    # Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; frame-src https://www.paypal.com https://www.sandbox.paypal.com;"
+    # Politique de sécurité du contenu (CSP)
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; frame-src https://www.paypal.com https://www.sandbox.paypal.com; connect-src 'self' https://www.google-analytics.com https://*.n8n.cloud;"
     
-    # HSTS (HTTP Strict Transport Security) - Activer uniquement en HTTPS
-    # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    # HSTS (HTTP Strict Transport Security)
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     
     # Référent
     Header set Referrer-Policy "strict-origin-when-cross-origin"
@@ -65,9 +65,9 @@ RewriteBase /
 RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
 RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 
-# Forcer HTTPS (décommenter en production)
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# Forcer HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
 # Réécriture des URLs pour les livres
 RewriteRule ^livre/([0-9]+)/([a-zA-Z0-9_-]+)\.html$ livres/fiche.php?id=$1 [L,QSA]

@@ -78,7 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($_FILES['image']['size'] > 5 * 1024 * 1024) {
             $erreurs[] = "L'image est trop volumineuse. Maximum 5 Mo.";
         } else {
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                $erreurs[] = "Extension de fichier non autorisée.";
+            } else {
             $filename = 'news_' . uniqid() . '_' . time() . '.' . $ext;
             $destination = '../assets/images/' . $filename;
             
@@ -96,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $erreurs[] = "Erreur lors de l'upload de l'image.";
             }
+            } // fin inner else (extension check)
         }
     }
     

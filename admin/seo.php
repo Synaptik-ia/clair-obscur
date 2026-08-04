@@ -103,6 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message_type = "success";
     }
     
+    // Re-fetch settings after update
+    $stmt = $conn->prepare($sql);
     $stmt->execute();
     $settings = [];
     while ($row = $stmt->fetch()) {
@@ -110,79 +112,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+require_once '../includes/sitemap.php';
+
 // Génération du sitemap.xml
 if (isset($_GET['generate_sitemap'])) {
     generateSitemap($conn);
     $message = "Sitemap.xml généré avec succès.";
     $message_type = "success";
-}
-
-// Fonction de génération du sitemap
-function generateSitemap($conn) {
-    $urls = [];
-    
-    $urls[] = ['loc' => SITE_URL, 'priority' => '1.0', 'changefreq' => 'weekly'];
-    
-    $sql = "SELECT id, date_parution FROM livres ORDER BY id";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    while ($row = $stmt->fetch()) {
-        $urls[] = [
-            'loc' => SITE_URL . 'livres/fiche.php?id=' . $row['id'],
-            'priority' => '0.8',
-            'changefreq' => 'monthly',
-            'lastmod' => date('Y-m-d', strtotime($row['date_parution']))
-        ];
-    }
-    
-    $sql = "SELECT id, date_creation FROM auteurs ORDER BY id";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    while ($row = $stmt->fetch()) {
-        $urls[] = [
-            'loc' => SITE_URL . 'auteurs/fiche.php?id=' . $row['id'],
-            'priority' => '0.6',
-            'changefreq' => 'monthly'
-        ];
-    }
-    
-    $sql = "SELECT id, date_publication FROM nouvelles ORDER BY id";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    while ($row = $stmt->fetch()) {
-        $urls[] = [
-            'loc' => SITE_URL . 'nouvelles/article.php?id=' . $row['id'],
-            'priority' => '0.7',
-            'changefreq' => 'weekly',
-            'lastmod' => date('Y-m-d', strtotime($row['date_publication']))
-        ];
-    }
-    
-    $static_pages = [
-        ['loc' => SITE_URL . 'livres/liste.php', 'priority' => '0.9'],
-        ['loc' => SITE_URL . 'nouvelles/', 'priority' => '0.7'],
-        ['loc' => SITE_URL . 'contact/', 'priority' => '0.5'],
-        ['loc' => SITE_URL . 'cgv/', 'priority' => '0.3']
-    ];
-    $urls = array_merge($urls, $static_pages);
-    
-    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-    
-    foreach ($urls as $url) {
-        $xml .= '  <url>' . "\n";
-        $xml .= '    <loc>' . htmlspecialchars($url['loc']) . '</loc>' . "\n";
-        if (isset($url['lastmod'])) {
-            $xml .= '    <lastmod>' . $url['lastmod'] . '</lastmod>' . "\n";
-        }
-        $xml .= '    <changefreq>' . $url['changefreq'] . '</changefreq>' . "\n";
-        $xml .= '    <priority>' . $url['priority'] . '</priority>' . "\n";
-        $xml .= '  </url>' . "\n";
-    }
-    
-    $xml .= '</urlset>';
-    
-    file_put_contents('../sitemap.xml', $xml);
 }
 
 include '../includes/header.php';

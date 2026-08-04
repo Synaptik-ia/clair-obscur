@@ -10,6 +10,14 @@ $keywords = "maison d'édition érotique;maison d’édition littérature adulte
 $db = new Database();
 $conn = $db->getConnection();
 
+// Traitement newsletter (avant tout output HTML)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
+    $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
+    $_SESSION['flash_type'] = "success";
+    header('Location: ' . SITE_URL);
+    exit();
+}
+
 // Récupérer les 3 derniers livres
 $sql_livres = "SELECT l.*, a.nom as auteur_nom 
                FROM livres l 
@@ -249,15 +257,5 @@ include 'includes/header.php';
     
 </div>
 
-<?php
-// Traitement newsletter (simple simulation)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
-    // Ici vous pourriez enregistrer l'email dans une table newsletter
-    $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
-    $_SESSION['flash_type'] = "success";
-    header('Location: ' . SITE_URL);
-    exit();
-}
-
-include 'includes/footer.php';
+<?php include 'includes/footer.php';
 ?>

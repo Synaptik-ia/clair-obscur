@@ -223,16 +223,16 @@ include '../includes/header.php';
                                         }
                                         ?>
                                         <tr>
-                                            <td><?php echo $commande['id']; ?></span></td>
-                                            <td><strong><?php echo cleanXSS($commande['reference']); ?></strong></span></td>
+                                            <td><?php echo $commande['id']; ?></td>
+                                            <td><strong><?php echo cleanXSS($commande['reference']); ?></strong></td>
                                             <td>
                                                 <?php echo cleanXSS($commande['prenom'] . ' ' . $commande['nom']); ?><br>
                                                 <small class="text-muted"><?php echo cleanXSS($commande['email']); ?></small>
-                                             </span>
-                                            <td><?php echo date('d/m/Y H:i', strtotime($commande['date_commande'])); ?></span></td>
-                                            <td><span class="badge bg-secondary"><?php echo $type_texte; ?></span></span></td>
-                                            <td><?php echo number_format($commande['montant_total'], 2); ?> €</span></td>
-                                            <td><span class="badge <?php echo $statut_class; ?>"><?php echo $statut_texte; ?></span></span></td>
+                                            </td>
+                                            <td><?php echo date('d/m/Y H:i', strtotime($commande['date_commande'])); ?></td>
+                                            <td><span class="badge bg-secondary"><?php echo $type_texte; ?></span></td>
+                                            <td><?php echo number_format($commande['montant_total'], 2); ?> €</td>
+                                            <td><span class="badge <?php echo $statut_class; ?>"><?php echo $statut_texte; ?></span></td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-<?php echo $commande['id']; ?>">
                                                     <i class="fas fa-eye"></i>
@@ -246,7 +246,6 @@ include '../includes/header.php';
                                                         </button>
                                                     </form>
                                                 <?php endif; ?>
-                                             </span>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

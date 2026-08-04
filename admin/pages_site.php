@@ -4,6 +4,7 @@
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/security.php';
+require_once '../includes/sitemap.php';
 
 // Vérifier que l'utilisateur est admin
 redirigerSiNonAdmin();
@@ -20,27 +21,6 @@ $message_type = '';
 if (isset($_POST['action']) && $_POST['action'] === 'regenerate') {
     $inserted = 0;
     $skipped = 0;
-
-    // Pages statiques
-    $static_pages = [
-        SITE_URL,
-        SITE_URL . 'auteurs/',
-        SITE_URL . 'livres/liste.php',
-        SITE_URL . 'nouvelles/',
-        SITE_URL . 'contact/',
-        SITE_URL . 'cgv/',
-    ];
-
-    foreach ($static_pages as $url) {
-        $sql = "INSERT IGNORE INTO site_pages (url, parsed, created_at) VALUES (:url, 0, NOW())";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([':url' => $url]);
-        if ($stmt->rowCount() > 0) {
-            $inserted++;
-        } else {
-            $skipped++;
-        }
-    }
 
     // Auteurs (tous les auteurs sont considérés comme activés)
     $sql = "SELECT id FROM auteurs ORDER BY id";
@@ -95,6 +75,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'regenerate') {
 
     $message = "Régénération terminée : $inserted nouvelle(s) page(s) ajoutée(s), $skipped déjà existante(s).";
     $message_type = "success";
+
+    // Régénérer le sitemap.xml
+    generateSitemap($conn);
+    $message .= " Sitemap.xml mis à jour.";
 }
 
 // Action : marquer comme parsé / non parsé
@@ -172,18 +156,26 @@ foreach ($stats_data as $row) {
     $stats[(int)$row['parsed']] = $row['total'];
 }
 
-// Compteurs pour la régénération
-$sql = "SELECT COUNT(*) as total FROM auteurs";
-$stmt = $conn->prepare($sql); $stmt->execute();
-$nb_auteurs = $stmt->fetch()['total'];
+// Compteurs pour la régénération : URLs non encore dans site_pages
+$sql = "SELECT COUNT(*) as total FROM auteurs a
+        LEFT JOIN site_pages sp ON sp.url = CONCAT(:base, 'auteurs/fiche.php?id=', a.id)
+        WHERE sp.id IS NULL";
+$stmt = $conn->prepare($sql); $stmt->execute([':base' => SITE_URL]);
+$nb_auteurs_missing = $stmt->fetch()['total'];
 
-$sql = "SELECT COUNT(*) as total FROM livres WHERE statut_vente != 'non_vendable'";
-$stmt = $conn->prepare($sql); $stmt->execute();
-$nb_livres = $stmt->fetch()['total'];
+$sql = "SELECT COUNT(*) as total FROM livres l
+        LEFT JOIN site_pages sp ON sp.url = CONCAT(:base, 'livres/fiche.php?id=', l.id)
+        WHERE sp.id IS NULL AND l.statut_vente != 'non_vendable'";
+$stmt = $conn->prepare($sql); $stmt->execute([':base' => SITE_URL]);
+$nb_livres_missing = $stmt->fetch()['total'];
 
-$sql = "SELECT COUNT(*) as total FROM nouvelles";
-$stmt = $conn->prepare($sql); $stmt->execute();
-$nb_nouvelles = $stmt->fetch()['total'];
+$sql = "SELECT COUNT(*) as total FROM nouvelles n
+        LEFT JOIN site_pages sp ON sp.url = CONCAT(:base, 'nouvelles/article.php?id=', n.id)
+        WHERE sp.id IS NULL";
+$stmt = $conn->prepare($sql); $stmt->execute([':base' => SITE_URL]);
+$nb_nouvelles_missing = $stmt->fetch()['total'];
+
+$nb_a_generer = $nb_auteurs_missing + $nb_livres_missing + $nb_nouvelles_missing;
 
 include '../includes/header.php';
 ?>
@@ -234,8 +226,8 @@ include '../includes/header.php';
                     <div class="card bg-info text-white shadow-sm">
                         <div class="card-body text-center">
                             <h6 class="card-title">À générer</h6>
-                            <h2 class="mb-0"><?php echo $nb_auteurs + $nb_livres + $nb_nouvelles + 6; ?></h2>
-                            <small><?php echo $nb_auteurs; ?> auteurs + <?php echo $nb_livres; ?> livres + <?php echo $nb_nouvelles; ?> nouvelles + 6 statiques</small>
+                            <h2 class="mb-0"><?php echo $nb_a_generer; ?></h2>
+                            <small><?php echo $nb_auteurs_missing; ?> auteurs + <?php echo $nb_livres_missing; ?> livres + <?php echo $nb_nouvelles_missing; ?> nouvelles</small>
                         </div>
                     </div>
                 </div>
@@ -249,12 +241,14 @@ include '../includes/header.php';
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
                         <form method="POST" action="" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                             <input type="hidden" name="action" value="regenerate">
                             <button type="submit" class="btn btn-primary" onclick="return confirm('Régénérer les URLs depuis les auteurs, livres activés et nouvelles ? Les doublons seront ignorés.')">
                                 <i class="fas fa-sync-alt"></i> Régénérer les URLs (auteurs + livres activés + nouvelles)
                             </button>
                         </form>
                         <form method="POST" action="" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                             <input type="hidden" name="action" value="reset_all_parsed">
                             <button type="submit" class="btn btn-warning" onclick="return confirm('Marquer TOUTES les pages comme non parsées ?')">
                                 <i class="fas fa-undo"></i> Tout marquer non parsé
@@ -262,7 +256,7 @@ include '../includes/header.php';
                         </form>
                     </div>
                     <small class="text-muted d-block mt-2">
-                        La régénération crée les URLs pour : auteurs (tous), livres (en_vente + précommande uniquement), nouvelles (toutes) + pages statiques.
+                        La régénération crée les URLs pour : auteurs (tous), livres (en_vente + précommande uniquement), nouvelles (toutes).
                         Les URLs déjà existantes sont ignorées. Toutes les nouvelles URLs sont créées avec <strong>parsed = 0</strong>.
                     </small>
                 </div>

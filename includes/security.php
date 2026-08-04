@@ -19,7 +19,8 @@ function cleanXSS($data) {
         return array_map('cleanXSS', $data);
     }
     // Supprimer les balises HTML potentiellement dangereuses
-    $data = strip_tags($data, '<p><br><strong><em><i><b><u><ul><li><ol><h1><h2><h3><h4><h5><h6><a><img>}<td><th><thead><tbody><blockquote><code><pre><span><div><figure><figcaption>');
+    $allowed_tags = '<p><br><strong><em><u><h1><h2><h3><h4><h5><h6><ul><ol><li><a><img><span><div><blockquote><pre><code><table><tr><td><th><thead><tbody><tfoot><hr>';
+    $data = strip_tags($data, $allowed_tags);
     // Convertir les entités HTML
     $data = htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     $data = html_entity_decode($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -267,7 +268,7 @@ function isMaliciousBot() {
 
 
 // Vérification CSRF pour les requêtes POST (sauf exceptions)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $exempt_pages = ['paiement/ipn.php', 'panier/ajouter_ajax.php', 'ajax/ipn.php'];
     $current_page = basename($_SERVER['PHP_SELF']);
     $current_dir = basename(dirname($_SERVER['PHP_SELF']));

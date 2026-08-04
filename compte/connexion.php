@@ -3,6 +3,13 @@
 
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/security.php';
+
+// Rate limiting (5 tentatives / 15 minutes)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !rateLimit('client_login', 5, 900)) {
+    $erreur = "Trop de tentatives. Veuillez réessayer dans 15 minutes.";
+    $_POST = []; // Empêcher le traitement
+}
 
 // Rediriger si déjà connecté
 if (estConnecte()) {
@@ -37,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($user && password_verify($password, $user['password'])) {
             // Connexion réussie
+            session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_nom'] = $user['prenom'] . ' ' . $user['nom'];
@@ -78,6 +86,7 @@ include '../includes/header.php';
                     <?php endif; ?>
                     
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <div class="mb-3">
                             <label for="email" class="form-label">Adresse email</label>
                             <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required autofocus>

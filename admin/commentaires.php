@@ -215,12 +215,12 @@ include '../includes/header.php';
                                 <tbody>
                                     <?php foreach ($commentaires as $commentaire): ?>
                                     <tr>
-                                        <td><?php echo $commentaire['id']; ?></span></td>
+                                        <td><?php echo $commentaire['id']; ?></td>
                                         <td>
                                             <?php echo cleanXSS($commentaire['prenom'] . ' ' . $commentaire['nom']); ?><br>
                                             <small class="text-muted"><?php echo cleanXSS($commentaire['email']); ?></small>
-                                         </span>
-                                        <td><?php echo cleanXSS($commentaire['livre_titre']); ?></span></td>
+                                        </td>
+                                        <td><?php echo cleanXSS($commentaire['livre_titre']); ?></td>
                                         <td>
                                             <?php if ($commentaire['note']): ?>
                                                 <?php for($i = 1; $i <= 5; $i++): ?>
@@ -229,11 +229,11 @@ include '../includes/header.php';
                                             <?php else: ?>
                                                 -
                                             <?php endif; ?>
-                                         </span>
+                                        </td>
                                         <td>
                                             <?php echo substr(cleanXSS($commentaire['commentaire']), 0, 80); ?>...
-                                         </span>
-                                        <td><?php echo date('d/m/Y H:i', strtotime($commentaire['date_creation'])); ?></span></td>
+                                        </td>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($commentaire['date_creation'])); ?></td>
                                         <td>
                                             <?php
                                             $status_class = '';
@@ -254,7 +254,7 @@ include '../includes/header.php';
                                             }
                                             ?>
                                             <span class="badge <?php echo $status_class; ?>"><?php echo $status_text; ?></span>
-                                         </span>
+                                        </td>
                                         <td>
                                             <?php if ($commentaire['status'] == 'en_attente'): ?>
                                                 <a href="?valider=<?php echo $commentaire['id']; ?>&status=<?php echo $status_filter; ?>&search=<?php echo urlencode($search); ?>" class="btn btn-sm btn-success">

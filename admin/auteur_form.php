@@ -71,7 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($_FILES['photo']['size'] > 2 * 1024 * 1024) {
                 $erreurs[] = "Le fichier est trop volumineux. Maximum 2 Mo.";
             } else {
-                $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+                $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
+                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                    $erreurs[] = "Extension de fichier non autorisée.";
+                } else {
                 $filename = 'author_' . uniqid() . '_' . time() . '.' . $ext;
                 $destination = '../assets/images/' . $filename;
                 
@@ -87,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $erreurs[] = "Erreur lors du déplacement du fichier.";
                 }
+                } // fin inner else (extension check)
             }
         }
     }

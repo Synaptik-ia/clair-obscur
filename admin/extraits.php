@@ -43,32 +43,51 @@ if (isset($_GET['toggle_parsed']) && is_numeric($_GET['toggle_parsed'])) {
 // Ajout / Modification
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $edit_id = isset($_POST['edit_id']) ? (int)$_POST['edit_id'] : 0;
+    $livre_id = isset($_POST['livre_id']) ? (int)$_POST['livre_id'] : 0;
     $contenu = $_POST['contenu'] ?? '';
     $parsed = isset($_POST['parsed']) ? 1 : 0;
 
     if (empty(trim($contenu))) {
         $message = "Le contenu de l'extrait est requis.";
         $message_type = "danger";
+    } elseif ($livre_id <= 0) {
+        $message = "Veuillez sélectionner un livre.";
+        $message_type = "danger";
     } else {
-        if ($edit_id > 0) {
-            $sql = "UPDATE extraits_livres SET contenu = :contenu, parsed = :parsed WHERE id = :id";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
-                ':contenu' => $contenu,
-                ':parsed' => $parsed,
-                ':id' => $edit_id
-            ]);
-            $message = "Extrait modifié.";
+        // Récupérer l'URL du livre
+        $stmt_url = $conn->prepare("SELECT id FROM livres WHERE id = :id");
+        $stmt_url->execute([':id' => $livre_id]);
+        $livre = $stmt_url->fetch();
+        if (!$livre) {
+            $message = "Livre introuvable.";
+            $message_type = "danger";
         } else {
-            $sql = "INSERT INTO extraits_livres (contenu, parsed, created_at) VALUES (:contenu, :parsed, NOW())";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
-                ':contenu' => $contenu,
-                ':parsed' => $parsed
-            ]);
-            $message = "Extrait ajouté.";
+            $livre_url = SITE_URL . 'livres/fiche.php?id=' . $livre_id;
+
+            if ($edit_id > 0) {
+                $sql = "UPDATE extraits_livres SET livre_id = :livre_id, livre_url = :livre_url, contenu = :contenu, parsed = :parsed WHERE id = :id";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute([
+                    ':livre_id' => $livre_id,
+                    ':livre_url' => $livre_url,
+                    ':contenu' => $contenu,
+                    ':parsed' => $parsed,
+                    ':id' => $edit_id
+                ]);
+                $message = "Extrait modifié.";
+            } else {
+                $sql = "INSERT INTO extraits_livres (livre_id, livre_url, contenu, parsed, created_at) VALUES (:livre_id, :livre_url, :contenu, :parsed, NOW())";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute([
+                    ':livre_id' => $livre_id,
+                    ':livre_url' => $livre_url,
+                    ':contenu' => $contenu,
+                    ':parsed' => $parsed
+                ]);
+                $message = "Extrait ajouté.";
+            }
+            $message_type = "success";
         }
-        $message_type = "success";
     }
 }
 
@@ -88,12 +107,21 @@ $limit = 20;
 $offset = ($page - 1) * $limit;
 
 $parsed_filter = isset($_GET['parsed']) ? $_GET['parsed'] : '';
+$livre_filter = isset($_GET['livre_id']) ? (int)$_GET['livre_id'] : 0;
 
 $where = "";
 $params = [];
+$conditions = [];
 if ($parsed_filter !== '') {
-    $where = " WHERE parsed = :parsed";
+    $conditions[] = "parsed = :parsed";
     $params[':parsed'] = (int)$parsed_filter;
+}
+if ($livre_filter > 0) {
+    $conditions[] = "livre_id = :livre_id";
+    $params[':livre_id'] = $livre_filter;
+}
+if (!empty($conditions)) {
+    $where = " WHERE " . implode(' AND ', $conditions);
 }
 
 $sql_count = "SELECT COUNT(*) as total FROM extraits_livres" . $where;
@@ -115,6 +143,12 @@ $stmt_list->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt_list->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt_list->execute();
 $extraits = $stmt_list->fetchAll();
+
+// Liste des livres pour le sélecteur
+$sql_livres = "SELECT id, titre FROM livres ORDER BY titre";
+$stmt_livres = $conn->prepare($sql_livres);
+$stmt_livres->execute();
+$livres_list = $stmt_livres->fetchAll();
 
 // Stats
 $sql = "SELECT parsed, COUNT(*) as total FROM extraits_livres GROUP BY parsed";
@@ -190,6 +224,18 @@ include '../includes/header.php';
                                 <?php endif; ?>
 
                                 <div class="mb-3">
+                                    <label class="form-label">Livre *</label>
+                                    <select name="livre_id" class="form-select" required>
+                                        <option value="">-- Choisir un livre --</option>
+                                        <?php foreach ($livres_list as $l): ?>
+                                            <option value="<?php echo $l['id']; ?>" <?php echo ($edit_data && $edit_data['livre_id'] == $l['id']) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($l['titre']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label">Contenu de l'extrait *</label>
                                     <textarea name="contenu" rows="10" class="form-control" required><?php echo htmlspecialchars($edit_data['contenu'] ?? ''); ?></textarea>
                                 </div>
@@ -219,13 +265,23 @@ include '../includes/header.php';
                         <div class="card-body py-2">
                             <form method="GET" action="" class="row g-2 align-items-end">
                                 <div class="col-auto">
+                                    <select name="livre_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="">Tous les livres</option>
+                                        <?php foreach ($livres_list as $l): ?>
+                                            <option value="<?php echo $l['id']; ?>" <?php echo $livre_filter === $l['id'] ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($l['titre']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
                                     <select name="parsed" class="form-select form-select-sm" onchange="this.form.submit()">
                                         <option value="">Tous</option>
                                         <option value="0" <?php echo $parsed_filter === '0' ? 'selected' : ''; ?>>Non parsé</option>
                                         <option value="1" <?php echo $parsed_filter === '1' ? 'selected' : ''; ?>>Parsé</option>
                                     </select>
                                 </div>
-                                <?php if ($parsed_filter !== ''): ?>
+                                <?php if ($parsed_filter !== '' || $livre_filter > 0): ?>
                                 <div class="col-auto">
                                     <a href="extraits.php" class="btn btn-sm btn-outline-secondary">Réinitialiser</a>
                                 </div>
@@ -245,6 +301,11 @@ include '../includes/header.php';
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <div>
                                             <span class="badge bg-secondary me-2">#<?php echo $e['id']; ?></span>
+                                            <?php if (!empty($e['livre_url'])): ?>
+                                                <a href="<?php echo htmlspecialchars($e['livre_url']); ?>" target="_blank" class="badge bg-info text-white text-decoration-none me-2" title="Voir le livre">
+                                                    <i class="fas fa-book"></i> Livre #<?php echo $e['livre_id']; ?>
+                                                </a>
+                                            <?php endif; ?>
                                             <?php if ($e['parsed']): ?>
                                                 <span class="badge bg-success">Parsé</span>
                                             <?php else: ?>
@@ -253,13 +314,13 @@ include '../includes/header.php';
                                             <small class="text-muted ms-2"><?php echo date('d/m/Y H:i', strtotime($e['created_at'])); ?></small>
                                         </div>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="?toggle_parsed=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&page=<?php echo $page; ?>" class="btn <?php echo $e['parsed'] ? 'btn-warning' : 'btn-success'; ?>" title="<?php echo $e['parsed'] ? 'Marquer non parsé' : 'Marquer parsé'; ?>">
+                                            <a href="?toggle_parsed=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>&page=<?php echo $page; ?>" class="btn <?php echo $e['parsed'] ? 'btn-warning' : 'btn-success'; ?>" title="<?php echo $e['parsed'] ? 'Marquer non parsé' : 'Marquer parsé'; ?>">
                                                 <i class="fas <?php echo $e['parsed'] ? 'fa-undo' : 'fa-check'; ?>"></i>
                                             </a>
-                                            <a href="?edit=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&page=<?php echo $page; ?>" class="btn btn-primary" title="Modifier">
+                                            <a href="?edit=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>&page=<?php echo $page; ?>" class="btn btn-primary" title="Modifier">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="?delete=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&page=<?php echo $page; ?>" class="btn btn-danger" title="Supprimer" onclick="return confirm('Supprimer cet extrait ?')">
+                                            <a href="?delete=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>&page=<?php echo $page; ?>" class="btn btn-danger" title="Supprimer" onclick="return confirm('Supprimer cet extrait ?')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -275,13 +336,13 @@ include '../includes/header.php';
                                     <nav>
                                         <ul class="pagination justify-content-center mb-0">
                                             <?php if ($page > 1): ?>
-                                                <li class="page-item"><a class="page-link" href="?page=<?php echo $page-1; ?>&parsed=<?php echo $parsed_filter; ?>">Précédent</a></li>
+                                                <li class="page-item"><a class="page-link" href="?page=<?php echo $page-1; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>">Précédent</a></li>
                                             <?php endif; ?>
                                             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                                <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>"><a class="page-link" href="?page=<?php echo $i; ?>&parsed=<?php echo $parsed_filter; ?>"><?php echo $i; ?></a></li>
+                                                <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>"><a class="page-link" href="?page=<?php echo $i; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>"><?php echo $i; ?></a></li>
                                             <?php endfor; ?>
                                             <?php if ($page < $total_pages): ?>
-                                                <li class="page-item"><a class="page-link" href="?page=<?php echo $page+1; ?>&parsed=<?php echo $parsed_filter; ?>">Suivant</a></li>
+                                                <li class="page-item"><a class="page-link" href="?page=<?php echo $page+1; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>">Suivant</a></li>
                                             <?php endif; ?>
                                         </ul>
                                     </nav>

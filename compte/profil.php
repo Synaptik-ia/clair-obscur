@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $code_postal = trim($_POST['code_postal'] ?? '');
         $ville = trim($_POST['ville'] ?? '');
         $pays = trim($_POST['pays'] ?? 'France');
+        $newsletter = isset($_POST['newsletter']) ? 1 : 0;
         
         if (empty($nom)) {
             $erreurs[] = "Le nom est requis.";
@@ -52,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $sql_update = "UPDATE utilisateurs 
                            SET nom = :nom, prenom = :prenom, telephone = :telephone, 
                                adresse = :adresse, code_postal = :code_postal, 
-                               ville = :ville, pays = :pays 
+                               ville = :ville, pays = :pays, newsletter = :newsletter 
                            WHERE id = :id";
             $stmt_update = $conn->prepare($sql_update);
             $stmt_update->execute([
@@ -63,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 ':code_postal' => $code_postal ?: null,
                 ':ville' => $ville ?: null,
                 ':pays' => $pays,
+                ':newsletter' => $newsletter,
                 ':id' => $user_id
             ]);
             
@@ -155,6 +157,7 @@ include '../includes/header.php';
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <input type="hidden" name="action" value="update_profil">
                         
                         <div class="row">
@@ -209,6 +212,17 @@ include '../includes/header.php';
                             </div>
                         </div>
                         
+                        <hr>
+
+                        <h6 class="mb-3">Préférences</h6>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter" <?php echo ($user['newsletter'] ?? 0) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="newsletter">
+                                Je souhaite recevoir la newsletter et être informé des nouvelles parutions
+                            </label>
+                        </div>
+
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Mettre à jour
@@ -225,6 +239,7 @@ include '../includes/header.php';
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <input type="hidden" name="action" value="change_password">
                         
                         <div class="mb-3">

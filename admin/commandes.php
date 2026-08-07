@@ -240,6 +240,7 @@ include '../includes/header.php';
                                                 
                                                 <?php if ($commande['type_commande'] == 'ebook' && $commande['statut'] == 'paye' && !$commande['lien_telechargement_unique']): ?>
                                                     <form method="POST" action="" style="display: inline;">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                                         <input type="hidden" name="commande_id" value="<?php echo $commande['id']; ?>">
                                                         <button type="submit" name="generate_link" class="btn btn-sm btn-warning">
                                                             <i class="fas fa-link"></i>
@@ -352,6 +353,7 @@ include '../includes/header.php';
                 
                 <h6>Changer le statut :</h6>
                 <form method="POST" action="" class="row g-2">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <input type="hidden" name="commande_id" value="<?php echo $commande['id']; ?>">
                     <div class="col-auto">
                         <select name="statut" class="form-select">

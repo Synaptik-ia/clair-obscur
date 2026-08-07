@@ -18,6 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) 
     exit();
 }
 
+// Message de confirmation newsletter (retour depuis le lien email)
+if (isset($_GET['newsletter'])) {
+    if ($_GET['newsletter'] === 'confirmed') {
+        $_SESSION['flash_message'] = "Votre inscription à la newsletter a bien été validée. Vous recevrez nos informations lors du prochain envoi.";
+        $_SESSION['flash_type'] = "success";
+    } elseif ($_GET['newsletter'] === 'error') {
+        $_SESSION['flash_message'] = "Le lien de confirmation est invalide ou a expiré. Veuillez réessayer ou nous contacter.";
+        $_SESSION['flash_type'] = "danger";
+    }
+    // Rediriger pour nettoyer l'URL
+    header('Location: ' . SITE_URL);
+    exit();
+}
+
 // Récupérer les 3 derniers livres
 $sql_livres = "SELECT l.*, a.nom as auteur_nom 
                FROM livres l 

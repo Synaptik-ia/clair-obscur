@@ -32,6 +32,28 @@ $csrf_token = generateCSRFToken();
 </head>
 <body>
 
+<!-- Bandeau newsletter -->
+<div id="newsletter-banner" class="newsletter-banner" style="display: none;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <p class="mb-0">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <strong>Recevez nos nouveautés</strong> — Inscrivez-vous à notre newsletter pour être informé des nouvelles parutions et offres exclusives.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <input type="email" id="nl-banner-email" class="form-control" placeholder="Votre email" aria-label="Email newsletter">
+                    <button id="nl-banner-submit" class="btn btn-primary">S'inscrire</button>
+                    <button id="nl-banner-close" class="btn btn-sm btn-link text-white ms-2" title="Fermer">&times;</button>
+                </div>
+                <div id="nl-banner-msg" class="small mt-1" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bandeau cookies -->
 <div id="cookie-banner" class="cookie-banner" style="display: none;">
     <div class="container">

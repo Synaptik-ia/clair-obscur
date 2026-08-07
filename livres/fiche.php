@@ -121,6 +121,7 @@ include '../includes/header.php';
             <div class="mb-3">
                 <?php if (estConnecte()): ?>
                     <form method="POST" action="" style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <button type="submit" name="toggle_like" class="btn <?php echo $user_like ? 'btn-danger' : 'btn-outline-danger'; ?>">
                             <i class="fas fa-heart"></i> <?php echo $user_like ? 'Je n\'aime plus' : 'J\'aime'; ?> (<?php echo $total_likes; ?>)
                         </button>
@@ -153,6 +154,14 @@ include '../includes/header.php';
                 <?php if ($livre['statut_vente'] == 'non_vendable'): ?>
                     <div class="alert alert-secondary">
                         <i class="fas fa-ban"></i> Ce livre n'est actuellement pas disponible à la vente.
+                    </div>
+                    <div class="mt-3 p-3 bg-white rounded border">
+                        <h6><i class="fas fa-bell"></i> Me prévenir quand ce livre sera disponible</h6>
+                        <div class="input-group input-group-sm mt-2">
+                            <input type="email" id="notify-email" class="form-control" placeholder="Votre email" value="<?php echo estConnecte() && isset($_SESSION['user_email']) ? cleanXSS($_SESSION['user_email']) : ''; ?>">
+                            <button id="notify-submit" class="btn btn-outline-primary" data-livre-id="<?php echo $livre_id; ?>">Me prévenir</button>
+                        </div>
+                        <div id="notify-msg" class="small mt-2" style="display:none;"></div>
                     </div>
                 <?php else: ?>
                     
@@ -194,6 +203,7 @@ include '../includes/header.php';
                     <!-- Formulaire d'achat / précommande -->
                     <?php if ($livre['statut_vente'] == 'precommande'): ?>
                         <form method="POST" action="<?php echo SITE_URL; ?>panier/ajouter.php" class="mt-3">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                             <input type="hidden" name="livre_id" value="<?php echo $livre['id']; ?>">
                             <input type="hidden" name="type_commande" id="type_commande" value="ebook">
                             <input type="hidden" name="dedicace" id="dedicace_value" value="0">
@@ -212,6 +222,7 @@ include '../includes/header.php';
                         </form>
                     <?php elseif ($livre['statut_vente'] == 'en_vente'): ?>
                         <form method="POST" action="<?php echo SITE_URL; ?>panier/ajouter.php" class="mt-3">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                             <input type="hidden" name="livre_id" value="<?php echo $livre['id']; ?>">
                             <input type="hidden" name="type_commande" id="type_commande" value="ebook">
                             <input type="hidden" name="dedicace" id="dedicace_value" value="0">
@@ -271,6 +282,7 @@ include '../includes/header.php';
                 <div class="mt-4 p-3 border rounded">
                     <h5>Laisser un commentaire</h5>
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <div class="mb-3">
                             <label class="form-label">Note (optionnelle) :</label>
                             <div class="rating">

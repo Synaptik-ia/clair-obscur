@@ -77,6 +77,9 @@ $full_path = $current_dir . '/' . $current_page;
             <span class="badge bg-danger float-end"><?php echo $stats_menu['commentaires_attente']; ?></span>
         <?php endif; ?>
     </a>
+    <a href="newsletter.php" class="list-group-item list-group-item-action <?php echo $current_page == 'newsletter.php' ? 'active' : ''; ?>">
+        <i class="fas fa-envelope-open-text"></i> Newsletter
+    </a>
     <a href="questions.php" class="list-group-item list-group-item-action <?php echo $current_page == 'questions.php' ? 'active' : ''; ?>">
         <i class="fas fa-question-circle"></i> Questions
         <?php if (!empty($stats_menu['questions_pending']) && $stats_menu['questions_pending'] > 0): ?>

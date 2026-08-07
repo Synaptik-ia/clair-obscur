@@ -148,6 +148,20 @@ include '../includes/header.php';
                 </div>
             </div>
             
+            <!-- Inscription newsletter -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="newsletter-optin">
+                        <label class="form-check-label" for="newsletter-optin">
+                            <i class="fas fa-envelope-open-text"></i> <strong>Recevoir nos nouveautés par email</strong><br>
+                            <small class="text-muted">Soyez informé des nouvelles parutions, offres exclusives et actualités de Clair-Obscur Éditions.</small>
+                        </label>
+                    </div>
+                    <div id="nl-optin-msg" class="small mt-2" style="display:none;"></div>
+                </div>
+            </div>
+
             <!-- Email de confirmation (simulation) -->
             <div class="card mt-4 bg-light">
                 <div class="card-body text-center small text-muted">

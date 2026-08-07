@@ -121,6 +121,7 @@ include '../includes/header.php';
                                             </a>
                                         <?php elseif ($commande['statut'] == 'paye' && $commande['type_commande'] == 'ebook' && !$commande['lien_telechargement_unique']): ?>
                                             <form method="POST" action="generer_lien.php" style="display: inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                                 <input type="hidden" name="commande_id" value="<?php echo $commande['id']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-link"></i> Générer lien

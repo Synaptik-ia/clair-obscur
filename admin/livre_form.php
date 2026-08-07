@@ -259,6 +259,7 @@ include '../includes/header.php';
             <div class="card shadow-sm">
                 <div class="card-body">
                     <form method="POST" action="" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">

@@ -219,6 +219,7 @@ include '../includes/header.php';
                         </div>
                         <div class="card-body">
                             <form method="POST" action="">
+                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                 <?php if ($edit_data): ?>
                                     <input type="hidden" name="edit_id" value="<?php echo $edit_data['id']; ?>">
                                 <?php endif; ?>

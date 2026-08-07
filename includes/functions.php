@@ -197,6 +197,173 @@ function slugify($text) {
 }
 
 /**
+ * Inscrit un email à la newsletter (ou réactive un compte supprimé)
+ * Retourne le token de confirmation
+ */
+function newsletter_subscribe($email) {
+    $db = new Database();
+    $conn = $db->getConnection();
+
+    $token = bin2hex(random_bytes(32));
+
+    // Vérifier si l'email existe déjà
+    $sql = "SELECT id, confirmed, deleted_at FROM newsletter WHERE email = :email";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':email' => $email]);
+    $existing = $stmt->fetch();
+
+    if ($existing) {
+        if ($existing['deleted_at'] === null && $existing['confirmed'] == 1) {
+            return ['status' => 'already_subscribed'];
+        }
+        // Réactiver l'abonnement
+        $sql = "UPDATE newsletter SET token = :token, confirmed = 0, deleted_at = NULL, created_at = NOW() WHERE id = :id";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':token' => $token, ':id' => $existing['id']]);
+    } else {
+        $sql = "INSERT INTO newsletter (email, token, confirmed, created_at) VALUES (:email, :token, 0, NOW())";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':email' => $email, ':token' => $token]);
+    }
+
+    // Envoyer l'email de confirmation
+    newsletter_send_confirmation($email, $token);
+
+    return ['status' => 'confirmation_sent', 'token' => $token];
+}
+
+/**
+ * Confirme l'inscription via le token
+ */
+function newsletter_confirm($token) {
+    $db = new Database();
+    $conn = $db->getConnection();
+
+    $sql = "SELECT id, email FROM newsletter WHERE token = :token AND confirmed = 0 AND deleted_at IS NULL";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':token' => $token]);
+    $subscriber = $stmt->fetch();
+
+    if (!$subscriber) {
+        return false;
+    }
+
+    $sql = "UPDATE newsletter SET confirmed = 1 WHERE id = :id";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':id' => $subscriber['id']]);
+
+    return $subscriber['email'];
+}
+
+/**
+ * Désabonne un email (soft delete)
+ */
+function newsletter_unsubscribe($email) {
+    $db = new Database();
+    $conn = $db->getConnection();
+
+    $sql = "UPDATE newsletter SET deleted_at = NOW() WHERE email = :email AND deleted_at IS NULL";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':email' => $email]);
+
+    if ($stmt->rowCount() > 0) {
+        newsletter_send_removal($email);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Supprime définitivement un abonné (hard delete) + envoie email
+ */
+function newsletter_delete($id) {
+    $db = new Database();
+    $conn = $db->getConnection();
+
+    $sql = "SELECT email FROM newsletter WHERE id = :id";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':id' => $id]);
+    $subscriber = $stmt->fetch();
+
+    if ($subscriber) {
+        $sql = "DELETE FROM newsletter WHERE id = :id";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        newsletter_send_removal($subscriber['email']);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Récupère tous les abonnés (pour l'admin)
+ */
+function newsletter_get_all($page = 1, $limit = 50) {
+    $db = new Database();
+    $conn = $db->getConnection();
+    $offset = ($page - 1) * $limit;
+
+    $sql = "SELECT * FROM newsletter WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll();
+}
+
+function newsletter_count_all() {
+    $db = new Database();
+    $conn = $db->getConnection();
+
+    $sql = "SELECT COUNT(*) as total FROM newsletter WHERE deleted_at IS NULL";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch()['total'];
+}
+
+/**
+ * Envoie l'email de confirmation d'inscription
+ */
+function newsletter_send_confirmation($email, $token) {
+    $confirm_link = SITE_URL . 'ajax/newsletter.php?action=confirm&token=' . $token;
+    $subject = "Confirmez votre inscription à la newsletter - Clair-Obscur Éditions";
+
+    $message = "Bonjour,\n\n";
+    $message .= "Merci de votre inscription à la newsletter de Clair-Obscur Éditions.\n\n";
+    $message .= "Pour confirmer votre inscription, veuillez cliquer sur le lien suivant :\n";
+    $message .= $confirm_link . "\n\n";
+    $message .= "Si vous n'avez pas demandé cette inscription, ignorez simplement cet email.\n\n";
+    $message .= "À bientôt,\nL'équipe Clair-Obscur Éditions";
+
+    $headers = "From: " . ADMIN_EMAIL . "\r\n";
+    $headers .= "Reply-To: " . ADMIN_EMAIL . "\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+    @mail($email, $subject, $message, $headers);
+}
+
+/**
+ * Envoie l'email de notification de désabonnement
+ */
+function newsletter_send_removal($email) {
+    $subject = "Désabonnement de la newsletter - Clair-Obscur Éditions";
+
+    $message = "Bonjour,\n\n";
+    $message .= "Votre adresse email a été retirée de notre liste de diffusion, comme demandé.\n\n";
+    $message .= "Si vous souhaitez vous réabonner, vous pouvez le faire à tout moment sur notre site :\n";
+    $message .= SITE_URL . "\n\n";
+    $message .= "Merci de votre intérêt pour Clair-Obscur Éditions.\n\n";
+    $message .= "Cordialement,\nL'équipe Clair-Obscur Éditions";
+
+    $headers = "From: " . ADMIN_EMAIL . "\r\n";
+    $headers .= "Reply-To: " . ADMIN_EMAIL . "\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+    @mail($email, $subject, $message, $headers);
+}
+
+/**
  * Partage sur les réseaux sociaux (génère les liens)
  */
 function liensPartageSociaux($url, $titre) {

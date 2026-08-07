@@ -192,6 +192,7 @@ include '../includes/header.php';
                         </p>
                         
                         <form method="POST" action="">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                             <input type="hidden" name="action" value="send_code">
                             
                             <div class="mb-3">
@@ -218,6 +219,7 @@ include '../includes/header.php';
                         </p>
                         
                         <form method="POST" action="">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                             <input type="hidden" name="action" value="verify_code">
                             
                             <div class="mb-3">
@@ -243,6 +245,7 @@ include '../includes/header.php';
                         </p>
                         
                         <form method="POST" action="">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                             <input type="hidden" name="action" value="reset_password">
                             
                             <div class="mb-3">

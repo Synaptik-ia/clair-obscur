@@ -92,6 +92,135 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('cookie-banner').style.display = 'none';
     });
 
+    // ========================
+    // Bandeau newsletter
+    // ========================
+    function getCookie(name) {
+        var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? match[2] : null;
+    }
+    function setCookie(name, value, days) {
+        var d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = name + '=' + value + ';expires=' + d.toUTCString() + ';path=/';
+    }
+
+    if (!getCookie('nl_banner_closed')) {
+        document.getElementById('newsletter-banner').style.display = 'block';
+    }
+
+    document.getElementById('nl-banner-close')?.addEventListener('click', function() {
+        setCookie('nl_banner_closed', 'true', 30);
+        document.getElementById('newsletter-banner').style.display = 'none';
+    });
+
+    document.getElementById('nl-banner-submit')?.addEventListener('click', function() {
+        var email = document.getElementById('nl-banner-email').value.trim();
+        var msgEl = document.getElementById('nl-banner-msg');
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'small mt-1 text-warning';
+            msgEl.textContent = 'Veuillez entrer une adresse email valide.';
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('action', 'subscribe');
+        formData.append('email', email);
+
+        fetch(SITE_URL + 'ajax/newsletter.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            msgEl.style.display = 'block';
+            if (data.success) {
+                msgEl.className = 'small mt-1 text-success';
+                msgEl.textContent = data.message;
+                document.getElementById('nl-banner-email').value = '';
+            } else {
+                msgEl.className = 'small mt-1 text-warning';
+                msgEl.textContent = data.message;
+            }
+        })
+        .catch(function() {
+            msgEl.style.display = 'block';
+            msgEl.className = 'small mt-1 text-danger';
+            msgEl.textContent = 'Erreur. Veuillez réessayer.';
+        });
+    });
+
+    // ========================
+    // Bouton "Me prévenir" sur fiche livre
+    // ========================
+    document.getElementById('notify-submit')?.addEventListener('click', function() {
+        var email = document.getElementById('notify-email').value.trim();
+        var livreId = this.getAttribute('data-livre-id');
+        var msgEl = document.getElementById('notify-msg');
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'small mt-2 text-danger';
+            msgEl.textContent = 'Veuillez entrer une adresse email valide.';
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('action', 'notify');
+        formData.append('email', email);
+        formData.append('livre_id', livreId);
+
+        fetch(SITE_URL + 'ajax/newsletter.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            msgEl.style.display = 'block';
+            if (data.success) {
+                msgEl.className = 'small mt-2 text-success';
+                msgEl.textContent = data.message;
+            } else {
+                msgEl.className = 'small mt-2 text-danger';
+                msgEl.textContent = data.message;
+            }
+        })
+        .catch(function() {
+            msgEl.style.display = 'block';
+            msgEl.className = 'small mt-2 text-danger';
+            msgEl.textContent = 'Erreur. Veuillez réessayer.';
+        });
+    });
+
+    // ========================
+    // Checkbox newsletter sur validation de commande
+    // ========================
+    document.getElementById('newsletter-optin')?.addEventListener('change', function() {
+        if (this.checked) {
+            var formData = new FormData();
+            formData.append('action', 'subscribe');
+            formData.append('email', '<?php echo isset($_SESSION['user_email']) ? $_SESSION['user_email'] : ''; ?>');
+
+            fetch(SITE_URL + 'ajax/newsletter.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var msgEl = document.getElementById('nl-optin-msg');
+                msgEl.style.display = 'block';
+                if (data.success) {
+                    msgEl.className = 'small mt-2 text-success';
+                    msgEl.textContent = data.message;
+                } else {
+                    msgEl.className = 'small mt-2 text-warning';
+                    msgEl.textContent = data.message;
+                }
+            });
+        }
+    });
 
    // ========================
     // Flèche retour en haut de page
@@ -162,8 +291,8 @@ if (window.location.hostname !== '') {
 	defaultLanguage: 'fr',
 	initialMessages: [
 		'Bonjour et bienvenue chez Clair-Obscur Éditions. 🖤',
-		'Je suis Julia, l\'assistante virtuelle de la maison.\n\nJe suis ici pour vous guider à travers notre univers littéraire, nos publications et nos ouvrages dédiés à la littérature adulte et érotique.\n\nJe peux également vous renseigner sur nos livres, leurs univers, leurs auteurs et vous aider à trouver la lecture qui saura éveiller votre curiosité… ou peut-être quelques désirs plus inavouables. 😉\n\nEt si je ne connais pas la réponse à votre question, je pourrai transmettre votre demande à mon maître, Édouard de Saintes, afin que notre équipe puisse vous répondre.\n\nAlors… dites-moi, que puis-je faire pour vous aujourd\'hui ? '
-	],
+		'Je suis **Julia**, l\'assistante virtuelle de **Clair-Obscur Éditions**.\n\nJe peux notamment vous aider à :\n\n📚 Découvrir nos ouvrages\n\n✍️ Vous présenter nos auteurs\n\n💕 Vous conseiller une lecture selon vos envies\n\n📖 Vous faire découvrir un extrait choisi au hasard parmi nos livres\n\n❓ Répondre à vos questions concernant notre maison d\'édition\n\nQue souhaitez-vous découvrir aujourd\'hui ? 😊
+    	],
 	i18n: {
 		fr: {
 			title: 'Bonjour 🖤',
@@ -179,7 +308,7 @@ if (window.location.hostname !== '') {
 // =====================================================
 	// OUVERTURE AUTOMATIQUE UNE SEULE FOIS
 	// =====================================================
-const CHAT_OPENED_KEY = 'synaptik_chat_auto_opened';
+const CHAT_OPENED_KEY = 'julia_chat_auto_opened';
 
 	if (!sessionStorage.getItem(CHAT_OPENED_KEY)) {
 
@@ -219,7 +348,7 @@ const CHAT_OPENED_KEY = 'synaptik_chat_auto_opened';
 					);
 
 					console.log(
-						'Shyrka : ouverture automatique du chat'
+						'Julia : ouverture automatique du chat'
 					);
 
 					return;
@@ -232,7 +361,7 @@ const CHAT_OPENED_KEY = 'synaptik_chat_auto_opened';
 				setTimeout(openChat, 500);
 			} else {
 				console.log(
-					'Shyrka : bouton du chat non trouvé'
+					'Julia : bouton du chat non trouvé'
 				);
 			}
 		};

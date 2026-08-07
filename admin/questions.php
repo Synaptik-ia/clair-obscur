@@ -238,6 +238,7 @@ include '../includes/header.php';
                                             </button>
                                             <?php if ($q['status'] === 'pending'): ?>
                                             <form method="POST" action="" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                                 <input type="hidden" name="id" value="<?php echo $q['id']; ?>">
                                                 <input type="hidden" name="action" value="close">
                                                 <button type="submit" class="btn btn-sm btn-secondary" title="Fermer" onclick="return confirm('Fermer cette question ?')">
@@ -246,6 +247,7 @@ include '../includes/header.php';
                                             </form>
                                             <?php elseif ($q['status'] === 'closed'): ?>
                                             <form method="POST" action="" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                                 <input type="hidden" name="id" value="<?php echo $q['id']; ?>">
                                                 <input type="hidden" name="action" value="reopen">
                                                 <button type="submit" class="btn btn-sm btn-warning" title="Rouvrir">
@@ -254,6 +256,7 @@ include '../includes/header.php';
                                             </form>
                                             <?php endif; ?>
                                             <form method="POST" action="" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                                 <input type="hidden" name="id" value="<?php echo $q['id']; ?>">
                                                 <input type="hidden" name="action" value="delete">
                                                 <button type="submit" class="btn btn-sm btn-danger" title="Supprimer" onclick="return confirm('Supprimer définitivement cette question ?')">
@@ -346,6 +349,7 @@ include '../includes/header.php';
 
                 <?php if ($q['status'] !== 'closed'): ?>
                 <form method="POST" action="" class="mt-3">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <input type="hidden" name="id" value="<?php echo $q['id']; ?>">
                     <input type="hidden" name="action" value="answer">
                     <div class="mb-3">

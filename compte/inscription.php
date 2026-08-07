@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
     $telephone = trim($_POST['telephone'] ?? '');
+    $newsletter = isset($_POST['newsletter']) ? 1 : 0;
     
     // Validations
     if (empty($email)) {
@@ -78,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($erreurs)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
-        $sql_insert = "INSERT INTO utilisateurs (email, password, nom, prenom, telephone, date_inscription) 
-                       VALUES (:email, :password, :nom, :prenom, :telephone, NOW())";
+        $sql_insert = "INSERT INTO utilisateurs (email, password, nom, prenom, telephone, newsletter, date_inscription) 
+                       VALUES (:email, :password, :nom, :prenom, :telephone, :newsletter, NOW())";
         $stmt_insert = $conn->prepare($sql_insert);
         
         try {
@@ -88,7 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':password' => $hashed_password,
                 ':nom' => $nom,
                 ':prenom' => $prenom,
-                ':telephone' => $telephone ?: null
+                ':telephone' => $telephone ?: null,
+                ':newsletter' => $newsletter
             ]);
             
             // Connexion automatique après inscription
@@ -215,6 +217,13 @@ include '../includes/header.php';
                             <input type="number" class="form-control" name="captcha" style="width: 100px;" required>
                         </div>
                         
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter" <?php echo isset($_POST['newsletter']) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="newsletter">
+                                Je souhaite recevoir la newsletter et être informé des nouvelles parutions
+                            </label>
+                        </div>
+
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="cgv_accept" name="cgv_accept" required>
                             <label class="form-check-label" for="cgv_accept">

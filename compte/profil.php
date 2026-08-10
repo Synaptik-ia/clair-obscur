@@ -3,6 +3,7 @@
 
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/security.php';
 
 // Vérifier si l'utilisateur est connecté
 redirigerSiNonConnecte();

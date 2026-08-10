@@ -143,6 +143,7 @@ include '../includes/header.php';
             <?php endif; ?>
             
             <form method="POST" action="" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <div class="row">
                     <div class="col-md-8">
                         <div class="card shadow-sm mb-4">

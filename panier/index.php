@@ -3,6 +3,7 @@
 
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/security.php';
 
 $page_title = "Mon panier - Clair-Obscur";
 $page_description = "Consultez et gérez votre panier avant validation de votre commande.";
@@ -193,6 +194,8 @@ include '../includes/header.php';
                                         <td><?php echo number_format($item['prix_unitaire'], 2); ?> €</td>
                                         <td>
                                             <form method="POST" action="" style="display: inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <input type="hidden" name="update_cart" value="1">
                                                 <input type="number" name="quantite[<?php echo $item['id']; ?>]" value="<?php echo $item['quantite']; ?>" min="1" max="10" style="width: 70px;" class="form-control form-control-sm">
                                         </td>
                                         <td><?php echo number_format($item['total_ligne'], 2); ?> €</td>
@@ -273,7 +276,10 @@ include '../includes/header.php';
             </div>
         </div>
         
-        <form id="update-cart-form" method="POST" action=""></form>
+        <form id="update-cart-form" method="POST" action="">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+            <input type="hidden" name="update_cart" value="1">
+        </form>
         
     <?php endif; ?>
 </div>

@@ -291,7 +291,7 @@ if (window.location.hostname !== '') {
 	defaultLanguage: 'fr',
 	initialMessages: [
 		'Bonjour et bienvenue chez Clair-Obscur Éditions. 🖤',
-		'Je suis **Julia**, l\'assistante virtuelle de **Clair-Obscur Éditions**.\n\nJe peux notamment vous aider à :\n\n📚 Découvrir nos ouvrages\n\n✍️ Vous présenter nos auteurs\n\n💕 Vous conseiller une lecture selon vos envies\n\n📖 Vous faire découvrir un extrait choisi au hasard parmi nos livres\n\n❓ Répondre à vos questions concernant notre maison d\'édition\n\nQue souhaitez-vous découvrir aujourd\'hui ? 😊
+		'Je suis **Julia**, l\'assistante virtuelle de **Clair-Obscur Éditions**.\n\nJe peux notamment vous aider à :\n\n📚 Découvrir nos ouvrages\n\n✍️ Vous présenter nos auteurs\n\n💕 Vous conseiller une lecture selon vos envies\n\n📖 Vous faire découvrir un extrait choisi au hasard parmi nos livres\n\n❓ Répondre à vos questions concernant notre maison d\'édition\n\nQue souhaitez-vous découvrir aujourd\'hui ? 😊'
     	],
 	i18n: {
 		fr: {

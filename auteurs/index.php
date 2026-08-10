@@ -74,13 +74,15 @@ include '../includes/header.php';
             <?php foreach ($auteurs as $auteur): ?>
             <div class="col-md-3 col-sm-6 mb-4">
                 <div class="card h-100 text-center shadow-sm">
-                    <?php if ($auteur['photo']): ?>
-                        <img src="<?php echo SITE_URL . 'assets/images/' . cleanXSS($auteur['photo']); ?>" class="card-img-top" alt="<?php echo cleanXSS($auteur['nom']); ?>" style="height: 250px; object-fit: cover;">
-                    <?php else: ?>
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 250px;">
-                            <i class="fas fa-user fa-5x"></i>
-                        </div>
-                    <?php endif; ?>
+                    <a href="fiche.php?id=<?php echo $auteur['id']; ?>">
+                        <?php if ($auteur['photo']): ?>
+                            <img src="<?php echo SITE_URL . 'assets/images/' . cleanXSS($auteur['photo']); ?>" class="card-img-top" alt="<?php echo cleanXSS($auteur['nom']); ?>" style="height: 250px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="fas fa-user fa-5x"></i>
+                            </div>
+                        <?php endif; ?>
+                    </a>
                     <div class="card-body">
                         <h5 class="card-title"><?php echo cleanXSS($auteur['nom']); ?></h5>
                         <p class="card-text small">

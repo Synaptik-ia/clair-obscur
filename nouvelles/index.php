@@ -3,6 +3,7 @@
 
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/security.php';
 
 $page_title = "Nouveautés & Actualités — Romans érotiques et littérature adulte | Clair-Obscur Éditions";
 $page_description = "Retrouvez les nouveautés de Clair-Obscur Éditions : nouvelles parutions, romans érotiques, littérature adulte, actualités éditoriales, annonces d’auteurs et sorties de livres.";
@@ -58,13 +59,15 @@ include '../includes/header.php';
                 
                 <?php foreach ($nouvelles as $nouvelle): ?>
                 <article class="card mb-4 shadow-sm">
-                    <?php if ($nouvelle['image']): ?>
-                        <img src="<?php echo SITE_URL . 'assets/images/' . $nouvelle['image']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($nouvelle['titre']); ?>" style="height: 250px; object-fit: cover;">
-                    <?php else: ?>
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <i class="fas fa-newspaper fa-4x"></i>
-                        </div>
-                    <?php endif; ?>
+                    <a href="article.php?id=<?php echo $nouvelle['id']; ?>">
+                        <?php if ($nouvelle['image']): ?>
+                            <img src="<?php echo SITE_URL . 'assets/images/' . $nouvelle['image']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($nouvelle['titre']); ?>" style="height: 250px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-newspaper fa-4x"></i>
+                            </div>
+                        <?php endif; ?>
+                    </a>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-primary">
@@ -181,6 +184,7 @@ include '../includes/header.php';
                 <div class="card-body">
                     <p>Recevez nos actualités directement dans votre boîte mail.</p>
                     <form method="POST" action="#">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <div class="mb-3">
                             <input type="email" name="newsletter_email" class="form-control" placeholder="Votre email" required>
                         </div>

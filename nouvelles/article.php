@@ -235,6 +235,7 @@ include '../includes/header.php';
                 <div class="card-body">
                     <p>Ne manquez aucune actualité de Clair-Obscur.</p>
                     <form method="POST" action="#">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <div class="mb-3">
                             <input type="email" name="newsletter_email" class="form-control" placeholder="Votre email" required>
                         </div>

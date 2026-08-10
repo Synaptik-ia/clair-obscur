@@ -131,17 +131,26 @@ include '../includes/header.php';
             <?php foreach ($livres as $livre): ?>
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    <?php if ($livre['couverture']): ?>
-                        <img src="<?php echo SITE_URL . 'assets/images/' . cleanXSS($livre['couverture']); ?>" class="card-img-top" alt="<?php echo cleanXSS($livre['titre']); ?>" style="height: 280px; object-fit: cover;">
-                    <?php else: ?>
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 280px;">
-                            <i class="fas fa-book fa-4x"></i>
-                        </div>
-                    <?php endif; ?>
+                    <a href="<?php echo SITE_URL; ?>livres/fiche.php?id=<?php echo $livre['id']; ?>">
+                        <?php if ($livre['couverture']): ?>
+                            <img src="<?php echo SITE_URL . 'assets/images/' . cleanXSS($livre['couverture']); ?>" class="card-img-top" alt="<?php echo cleanXSS($livre['titre']); ?>" style="height: 280px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 280px;">
+                                <i class="fas fa-book fa-4x"></i>
+                            </div>
+                        <?php endif; ?>
+                    </a>
                     <div class="card-body">
-                        <h5 class="card-title"><?php echo cleanXSS($livre['titre']); ?></h5>
+                        <h5 class="card-title">
+                            <a href="<?php echo SITE_URL; ?>livres/fiche.php?id=<?php echo $livre['id']; ?>" class="text-decoration-none text-dark"><?php echo cleanXSS($livre['titre']); ?></a>
+                        </h5>
                         <p class="card-text text-muted">
-                            <i class="fas fa-user"></i> <?php echo cleanXSS($livre['auteur_nom'] ?? 'Auteur inconnu'); ?>
+                            <i class="fas fa-user"></i>
+                            <?php if (!empty($livre['auteur_id'])): ?>
+                                <a href="<?php echo SITE_URL; ?>auteurs/fiche.php?id=<?php echo $livre['auteur_id']; ?>" class="text-muted text-decoration-none"><?php echo cleanXSS($livre['auteur_nom'] ?? 'Auteur inconnu'); ?></a>
+                            <?php else: ?>
+                                <?php echo cleanXSS($livre['auteur_nom'] ?? 'Auteur inconnu'); ?>
+                            <?php endif; ?>
                         </p>
                         
                         <!-- Badge de statut -->
@@ -177,14 +186,17 @@ include '../includes/header.php';
                         </p>
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div>
-                                <?php if ($livre['statut_vente'] == 'precommande' && $livre['prix_precommande']): ?>
-                                    <span class="h5 text-primary"><?php echo number_format($livre['prix_precommande'], 2); ?> €</span>
-                                    <small class="text-muted text-decoration-line-through"><?php echo number_format($livre['prix_ebook'], 2); ?> €</small>
-                                <?php elseif ($livre['statut_vente'] != 'non_vendable'): ?>
-                                    <span class="h5 text-primary"><?php echo number_format($livre['prix_ebook'], 2); ?> €</span>
-                                <?php endif; ?>
-                                <?php if ($livre['prix_physique'] && $livre['statut_vente'] != 'non_vendable'): ?>
-                                    <small class="text-muted">/ physique: <?php echo number_format($livre['prix_physique'], 2); ?> €</small>
+                                <?php $commande_possible = in_array($livre['statut_vente'], ['en_vente', 'precommande']); ?>
+                                <?php if ($commande_possible): ?>
+                                    <?php if ($livre['statut_vente'] == 'precommande' && $livre['prix_precommande']): ?>
+                                        <span class="h5 text-primary"><?php echo number_format($livre['prix_precommande'], 2); ?> €</span>
+                                        <small class="text-muted text-decoration-line-through"><?php echo number_format($livre['prix_ebook'], 2); ?> €</small>
+                                    <?php else: ?>
+                                        <span class="h5 text-primary"><?php echo number_format($livre['prix_ebook'], 2); ?> €</span>
+                                    <?php endif; ?>
+                                    <?php if ($livre['prix_physique']): ?>
+                                        <small class="text-muted">/ physique: <?php echo number_format($livre['prix_physique'], 2); ?> €</small>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                             <div>

@@ -3,6 +3,7 @@
 
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+require_once 'includes/security.php';
 
 $page_title = "Accueil - Maison d'édition Clair-Obscur";
 $page_description = "Découvrez les livres de la maison d'édition Clair-Obscur. Littérature pour adultes, romans contemporains, et nouvelles exclusives.";
@@ -138,23 +139,36 @@ include 'includes/header.php';
                 <?php foreach ($derniers_livres as $livre): ?>
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        <?php if ($livre['couverture']): ?>
-                            <img src="<?php echo SITE_URL . 'assets/images/' . $livre['couverture']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($livre['titre']); ?>" style="height: 300px; object-fit: cover;">
-                        <?php else: ?>
-                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 300px;">
-                                <i class="fas fa-book fa-4x"></i>
-                            </div>
-                        <?php endif; ?>
+                        <a href="<?php echo SITE_URL; ?>livres/fiche.php?id=<?php echo $livre['id']; ?>">
+                            <?php if ($livre['couverture']): ?>
+                                <img src="<?php echo SITE_URL . 'assets/images/' . $livre['couverture']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($livre['titre']); ?>" style="height: 300px; object-fit: cover;">
+                            <?php else: ?>
+                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <i class="fas fa-book fa-4x"></i>
+                                </div>
+                            <?php endif; ?>
+                        </a>
                         <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($livre['titre']); ?></h5>
+                            <h5 class="card-title">
+                                <a href="<?php echo SITE_URL; ?>livres/fiche.php?id=<?php echo $livre['id']; ?>" class="text-decoration-none text-dark"><?php echo htmlspecialchars($livre['titre']); ?></a>
+                            </h5>
                             <p class="card-text text-muted small">
-                                <i class="fas fa-user"></i> <?php echo htmlspecialchars($livre['auteur_nom'] ?? 'Auteur inconnu'); ?>
+                                <i class="fas fa-user"></i>
+                                <?php if (!empty($livre['auteur_id'])): ?>
+                                    <a href="<?php echo SITE_URL; ?>auteurs/fiche.php?id=<?php echo $livre['auteur_id']; ?>" class="text-muted text-decoration-none"><?php echo htmlspecialchars($livre['auteur_nom'] ?? 'Auteur inconnu'); ?></a>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($livre['auteur_nom'] ?? 'Auteur inconnu'); ?>
+                                <?php endif; ?>
                             </p>
                             <p class="card-text">
                                 <?php echo substr(htmlspecialchars($livre['description']), 0, 100) . '...'; ?>
                             </p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary"><?php echo number_format($livre['prix_ebook'], 2); ?> €</span>
+                                <?php if (in_array($livre['statut_vente'], ['en_vente', 'precommande'])): ?>
+                                    <span class="h5 text-primary"><?php echo number_format($livre['prix_ebook'], 2); ?> €</span>
+                                <?php else: ?>
+                                    <span class="text-muted">Non disponible</span>
+                                <?php endif; ?>
                                 <a href="<?php echo SITE_URL; ?>livres/fiche.php?id=<?php echo $livre['id']; ?>" class="btn btn-sm btn-outline-primary">Détails</a>
                             </div>
                         </div>

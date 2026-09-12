@@ -16,7 +16,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 12;
 $offset = ($page - 1) * $limit;
 
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 // Récupération du nombre total d'auteurs
 $sql_count = "SELECT COUNT(*) as total FROM auteurs";

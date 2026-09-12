@@ -15,22 +15,19 @@ $erreurs = [];
 define('RECAPTCHA_SITE_KEY', env('RECAPTCHA_SITE_KEY', ''));
 define('RECAPTCHA_SECRET_KEY', env('RECAPTCHA_SECRET_KEY', ''));
 
-// Rate limiting pour le formulaire de contact
-if (!rateLimit('contact_form', 5, 300)) {
-    $erreurs[] = "Trop de tentatives. Veuillez attendre 5 minutes avant de réessayer.";
-}
-
 // Traitement du formulaire de contact
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Vérification CSRF
-    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+    // Rate limiting : uniquement sur les soumissions (5 envois / 5 minutes)
+    if (!rateLimit('contact_form', 5, 300)) {
+        $erreurs[] = "Trop de tentatives. Veuillez attendre 5 minutes avant de réessayer.";
+    } elseif (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $erreurs[] = "Erreur de sécurité. Veuillez rafraîchir la page et réessayer.";
     } else {
         // Nettoyage des entrées
-        $nom = cleanSQL(trim($_POST['nom'] ?? ''));
+        $nom = trim($_POST['nom'] ?? '');
         $email = trim($_POST['email'] ?? '');
-        $sujet = cleanSQL(trim($_POST['sujet'] ?? ''));
-        $message = cleanSQL(trim($_POST['message'] ?? ''));
+        $sujet = trim($_POST['sujet'] ?? '');
+        $message = trim($_POST['message'] ?? '');
         $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
         
         // Validations
@@ -99,20 +96,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Envoi de l'email
         if (empty($erreurs)) {
+            // Neutraliser les sauts de ligne pour empêcher l'injection d'en-têtes
+            $sujet_safe = str_replace(["\r", "\n"], ' ', $sujet);
+            $nom_safe = str_replace(["\r", "\n"], ' ', $nom);
+            $email_safe = str_replace(["\r", "\n"], '', $email);
+
             $to = ADMIN_EMAIL;
-            $headers = "From: " . $email . "\r\n";
-            $headers .= "Reply-To: " . $email . "\r\n";
+            $headers = "From: " . ADMIN_EMAIL . "\r\n";
+            $headers .= "Reply-To: " . $email_safe . "\r\n";
             $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
             $headers .= "Content-Type: text/plain; charset=utf-8\r\n";
             
-            $corps_message = "Nom: $nom\n";
-            $corps_message .= "Email: $email\n";
-            $corps_message .= "Sujet: $sujet\n";
+            $corps_message = "Nom: $nom_safe\n";
+            $corps_message .= "Email: $email_safe\n";
+            $corps_message .= "Sujet: $sujet_safe\n";
             $corps_message .= "IP: " . $_SERVER['REMOTE_ADDR'] . "\n";
             $corps_message .= "reCAPTCHA Score: " . ($recaptcha_json['score'] ?? 'N/A') . "\n\n";
             $corps_message .= "Message:\n$message\n";
             
-            if (mail($to, "[Clair-Obscur] " . $sujet, $corps_message, $headers)) {
+            if (mail($to, "[Clair-Obscur] " . $sujet_safe, $corps_message, $headers)) {
                 $message_envoye = true;
                 logAction('CONTACT_FORM', "Message envoyé par $email - reCAPTCHA score: " . ($recaptcha_json['score'] ?? 'N/A'));
             } else {

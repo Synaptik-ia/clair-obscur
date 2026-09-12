@@ -64,10 +64,18 @@ $stmt->execute();
 $pendingCount = $stmt->fetch()['total'];
 
 $page_title = 'Gestion Newsletter - Administration';
-include 'menu.php';
+include '../includes/header.php';
 ?>
 
 <div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar admin - inclusion du menu centralisé -->
+        <div class="col-md-3 col-lg-2 mb-4">
+            <?php include 'menu.php'; ?>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="col-md-9 col-lg-10">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-envelope-open-text"></i> Gestion de la newsletter</h1>
         <div>
@@ -177,6 +185,8 @@ include 'menu.php';
                 </nav>
                 <?php endif; ?>
             <?php endif; ?>
+        </div>
+    </div>
         </div>
     </div>
 </div>

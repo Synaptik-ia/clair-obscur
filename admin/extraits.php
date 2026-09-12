@@ -16,8 +16,8 @@ $message = '';
 $message_type = '';
 
 // Suppression
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $id = (int)$_POST['delete'];
     $sql = "DELETE FROM extraits_livres WHERE id = :id";
     $stmt = $conn->prepare($sql);
     if ($stmt->execute([':id' => $id])) {
@@ -30,8 +30,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 }
 
 // Toggle parsed
-if (isset($_GET['toggle_parsed']) && is_numeric($_GET['toggle_parsed'])) {
-    $id = (int)$_GET['toggle_parsed'];
+if (isset($_POST['toggle_parsed']) && is_numeric($_POST['toggle_parsed'])) {
+    $id = (int)$_POST['toggle_parsed'];
     $sql = "UPDATE extraits_livres SET parsed = 1 - parsed WHERE id = :id";
     $stmt = $conn->prepare($sql);
     if ($stmt->execute([':id' => $id])) {
@@ -40,8 +40,8 @@ if (isset($_GET['toggle_parsed']) && is_numeric($_GET['toggle_parsed'])) {
     }
 }
 
-// Ajout / Modification
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Ajout / Modification (ignorer les actions delete/toggle_parsed)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['delete']) && !isset($_POST['toggle_parsed'])) {
     $edit_id = isset($_POST['edit_id']) ? (int)$_POST['edit_id'] : 0;
     $livre_id = isset($_POST['livre_id']) ? (int)$_POST['livre_id'] : 0;
     $contenu = $_POST['contenu'] ?? '';
@@ -102,12 +102,12 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
 }
 
 // Pagination et filtres
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = isset($_REQUEST['page']) ? (int)$_REQUEST['page'] : 1;
 $limit = 20;
 $offset = ($page - 1) * $limit;
 
-$parsed_filter = isset($_GET['parsed']) ? $_GET['parsed'] : '';
-$livre_filter = isset($_GET['livre_id']) ? (int)$_GET['livre_id'] : 0;
+$parsed_filter = $_REQUEST['parsed'] ?? '';
+$livre_filter = isset($_REQUEST['livre_id']) ? (int)$_REQUEST['livre_id'] : 0;
 
 $where = "";
 $params = [];
@@ -315,15 +315,27 @@ include '../includes/header.php';
                                             <small class="text-muted ms-2"><?php echo date('d/m/Y H:i', strtotime($e['created_at'])); ?></small>
                                         </div>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="?toggle_parsed=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>&page=<?php echo $page; ?>" class="btn <?php echo $e['parsed'] ? 'btn-warning' : 'btn-success'; ?>" title="<?php echo $e['parsed'] ? 'Marquer non parsé' : 'Marquer parsé'; ?>">
-                                                <i class="fas <?php echo $e['parsed'] ? 'fa-undo' : 'fa-check'; ?>"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <input type="hidden" name="parsed" value="<?php echo htmlspecialchars($parsed_filter); ?>">
+                                                <input type="hidden" name="livre_id" value="<?php echo $livre_filter; ?>">
+                                                <input type="hidden" name="page" value="<?php echo $page; ?>">
+                                                <button type="submit" name="toggle_parsed" value="<?php echo $e['id']; ?>" class="btn <?php echo $e['parsed'] ? 'btn-warning' : 'btn-success'; ?>" title="<?php echo $e['parsed'] ? 'Marquer non parsé' : 'Marquer parsé'; ?>">
+                                                    <i class="fas <?php echo $e['parsed'] ? 'fa-undo' : 'fa-check'; ?>"></i>
+                                                </button>
+                                            </form>
                                             <a href="?edit=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>&page=<?php echo $page; ?>" class="btn btn-primary" title="Modifier">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="?delete=<?php echo $e['id']; ?>&parsed=<?php echo $parsed_filter; ?>&livre_id=<?php echo $livre_filter; ?>&page=<?php echo $page; ?>" class="btn btn-danger" title="Supprimer" onclick="return confirm('Supprimer cet extrait ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer cet extrait ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <input type="hidden" name="parsed" value="<?php echo htmlspecialchars($parsed_filter); ?>">
+                                                <input type="hidden" name="livre_id" value="<?php echo $livre_filter; ?>">
+                                                <input type="hidden" name="page" value="<?php echo $page; ?>">
+                                                <button type="submit" name="delete" value="<?php echo $e['id']; ?>" class="btn btn-danger" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                     <div class="text-truncate" style="max-height: 60px; overflow: hidden;" title="<?php echo htmlspecialchars($e['contenu']); ?>">

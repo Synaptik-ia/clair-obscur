@@ -87,8 +87,8 @@ $type_texte = ($type_commande == 'ebook') ? 'Ebook PDF' : (($dedicace) ? 'Versio
 $_SESSION['flash_message'] = "\"{$nom_livre}\" ({$type_texte}) a été ajouté au panier.";
 $_SESSION['flash_type'] = "success";
 
-// Redirection vers le panier ou la fiche livre
-$redirect = isset($_GET['redirect']) ? $_GET['redirect'] : SITE_URL . 'panier/';
+// Redirection vers le panier ou la fiche livre (interne uniquement)
+$redirect = safeRedirect($_GET['redirect'] ?? '', SITE_URL . 'panier/');
 header('Location: ' . $redirect);
 exit();
 ?>

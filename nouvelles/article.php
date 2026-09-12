@@ -68,10 +68,16 @@ $social_links = [
 
 // Traitement newsletter (avant tout output HTML)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
-    $newsletter_email = cleanSQL(trim($_POST['newsletter_email']));
+    $newsletter_email = trim($_POST['newsletter_email']);
     if (validateEmail($newsletter_email)) {
-        $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
-        $_SESSION['flash_type'] = "success";
+        $result = newsletter_subscribe($newsletter_email);
+        if ($result['status'] === 'already_subscribed') {
+            $_SESSION['flash_message'] = "Vous êtes déjà inscrit à notre newsletter.";
+            $_SESSION['flash_type'] = "info";
+        } else {
+            $_SESSION['flash_message'] = "Merci ! Un email de confirmation vous a été envoyé. Cliquez sur le lien pour valider votre inscription.";
+            $_SESSION['flash_type'] = "success";
+        }
     } else {
         $_SESSION['flash_message'] = "Veuillez entrer un email valide.";
         $_SESSION['flash_type'] = "danger";

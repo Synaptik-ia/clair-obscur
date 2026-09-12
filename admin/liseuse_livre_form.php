@@ -11,9 +11,9 @@ $db = new Database();
 $conn = $db->getConnection();
 
 $livre_id = isset($_POST['livre_id']) ? (int)$_POST['livre_id'] : 0;
-$titre = cleanSQL(trim($_POST['titre'] ?? ''));
-$slug = cleanSQL(trim($_POST['slug'] ?? ''));
-$description = cleanSQL(trim($_POST['description'] ?? ''));
+$titre = trim($_POST['titre'] ?? '');
+$slug = trim($_POST['slug'] ?? '');
+$description = trim($_POST['description'] ?? '');
 
 $erreurs = [];
 

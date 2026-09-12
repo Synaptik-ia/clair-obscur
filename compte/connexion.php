@@ -5,10 +5,14 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/security.php';
 
+$erreur = '';
+$email = '';
+
 // Rate limiting (5 tentatives / 15 minutes)
+$rate_limited = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !rateLimit('client_login', 5, 900)) {
     $erreur = "Trop de tentatives. Veuillez réessayer dans 15 minutes.";
-    $_POST = []; // Empêcher le traitement
+    $rate_limited = true;
 }
 
 // Rediriger si déjà connecté
@@ -23,10 +27,7 @@ $page_description = "Connectez-vous à votre compte client Clair-Obscur pour acc
 $db = new Database();
 $conn = $db->getConnection();
 
-$erreur = '';
-$email = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$rate_limited) {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $remember = isset($_POST['remember']);
@@ -53,12 +54,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Se souvenir de moi (cookie 30 jours)
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
-                setcookie('remember_token', $token, time() + 30 * 24 * 3600, '/');
-                // Ici vous pourriez stocker le token en base pour auto-login
+                setcookie('remember_token', $token, [
+                    'expires' => time() + 30 * 24 * 3600,
+                    'path' => '/',
+                    'secure' => true,
+                    'httponly' => true,
+                    'samesite' => 'Strict'
+                ]);
+                // TODO : stocker le token hashé en base pour permettre l'auto-login
             }
             
-            // Redirection vers la page demandée ou profil
-            $redirect = $_GET['redirect'] ?? SITE_URL . 'compte/profil.php';
+            // Redirection vers la page demandée ou profil (interne uniquement)
+            $redirect = safeRedirect($_GET['redirect'] ?? '', SITE_URL . 'compte/profil.php');
             header('Location: ' . $redirect);
             exit();
         } else {

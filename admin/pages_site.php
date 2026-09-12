@@ -82,8 +82,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'regenerate') {
 }
 
 // Action : marquer comme parsé / non parsé
-if (isset($_GET['toggle_parsed']) && is_numeric($_GET['toggle_parsed'])) {
-    $id = (int)$_GET['toggle_parsed'];
+if (isset($_POST['toggle_parsed']) && is_numeric($_POST['toggle_parsed'])) {
+    $id = (int)$_POST['toggle_parsed'];
     $sql = "UPDATE site_pages SET parsed = 1 - parsed WHERE id = :id";
     $stmt = $conn->prepare($sql);
     if ($stmt->execute([':id' => $id])) {
@@ -93,8 +93,8 @@ if (isset($_GET['toggle_parsed']) && is_numeric($_GET['toggle_parsed'])) {
 }
 
 // Action : suppression
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $id = (int)$_POST['delete'];
     $sql = "DELETE FROM site_pages WHERE id = :id";
     $stmt = $conn->prepare($sql);
     if ($stmt->execute([':id' => $id])) {
@@ -113,11 +113,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'reset_all_parsed') {
 }
 
 // Pagination et filtres
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = isset($_REQUEST['page']) ? (int)$_REQUEST['page'] : 1;
 $limit = 30;
 $offset = ($page - 1) * $limit;
 
-$parsed_filter = isset($_GET['parsed']) ? $_GET['parsed'] : '';
+$parsed_filter = $_REQUEST['parsed'] ?? '';
 
 $where = "";
 $params = [];
@@ -321,12 +321,22 @@ include '../includes/header.php';
                                         </td>
                                         <td><small><?php echo date('d/m/Y H:i', strtotime($p['created_at'])); ?></small></td>
                                         <td>
-                                            <a href="?toggle_parsed=<?php echo $p['id']; ?>&parsed=<?php echo $parsed_filter; ?>&page=<?php echo $page; ?>" class="btn btn-sm <?php echo $p['parsed'] ? 'btn-warning' : 'btn-success'; ?>" title="<?php echo $p['parsed'] ? 'Marquer non parsé' : 'Marquer parsé'; ?>">
-                                                <i class="fas <?php echo $p['parsed'] ? 'fa-undo' : 'fa-check'; ?>"></i>
-                                            </a>
-                                            <a href="?delete=<?php echo $p['id']; ?>&parsed=<?php echo $parsed_filter; ?>&page=<?php echo $page; ?>" class="btn btn-sm btn-danger" title="Supprimer" onclick="return confirm('Supprimer cette page ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <input type="hidden" name="parsed" value="<?php echo htmlspecialchars($parsed_filter); ?>">
+                                                <input type="hidden" name="page" value="<?php echo $page; ?>">
+                                                <button type="submit" name="toggle_parsed" value="<?php echo $p['id']; ?>" class="btn btn-sm <?php echo $p['parsed'] ? 'btn-warning' : 'btn-success'; ?>" title="<?php echo $p['parsed'] ? 'Marquer non parsé' : 'Marquer parsé'; ?>">
+                                                    <i class="fas <?php echo $p['parsed'] ? 'fa-undo' : 'fa-check'; ?>"></i>
+                                                </button>
+                                            </form>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer cette page ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <input type="hidden" name="parsed" value="<?php echo htmlspecialchars($parsed_filter); ?>">
+                                                <input type="hidden" name="page" value="<?php echo $page; ?>">
+                                                <button type="submit" name="delete" value="<?php echo $p['id']; ?>" class="btn btn-sm btn-danger" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>

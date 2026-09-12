@@ -20,8 +20,8 @@ $message = '';
 $message_type = '';
 
 // Supprimer un article
-if (isset($_GET['remove']) && is_numeric($_GET['remove'])) {
-    $remove_id = (int)$_GET['remove'];
+if (isset($_POST['remove']) && is_numeric($_POST['remove'])) {
+    $remove_id = (int)$_POST['remove'];
     if (isset($_SESSION['panier'][$remove_id])) {
         unset($_SESSION['panier'][$remove_id]);
         $_SESSION['flash_message'] = "Article retiré du panier.";
@@ -32,7 +32,7 @@ if (isset($_GET['remove']) && is_numeric($_GET['remove'])) {
 }
 
 // Vider le panier
-if (isset($_GET['empty'])) {
+if (isset($_POST['empty'])) {
     $_SESSION['panier'] = [];
     $_SESSION['flash_message'] = "Votre panier a été vidé.";
     $_SESSION['flash_type'] = "info";
@@ -193,16 +193,16 @@ include '../includes/header.php';
                                         </td>
                                         <td><?php echo number_format($item['prix_unitaire'], 2); ?> €</td>
                                         <td>
-                                            <form method="POST" action="" style="display: inline;">
-                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                                <input type="hidden" name="update_cart" value="1">
-                                                <input type="number" name="quantite[<?php echo $item['id']; ?>]" value="<?php echo $item['quantite']; ?>" min="1" max="10" style="width: 70px;" class="form-control form-control-sm">
+                                            <input type="number" form="update-cart-form" name="quantite[<?php echo $item['id']; ?>]" value="<?php echo $item['quantite']; ?>" min="1" max="10" style="width: 70px;" class="form-control form-control-sm">
                                         </td>
                                         <td><?php echo number_format($item['total_ligne'], 2); ?> €</td>
                                         <td>
-                                            <a href="?remove=<?php echo $item['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Retirer cet article ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Retirer cet article ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <button type="submit" name="remove" value="<?php echo $item['id']; ?>" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -219,9 +219,12 @@ include '../includes/header.php';
                                 <button type="submit" name="update_cart" form="update-cart-form" class="btn btn-outline-primary me-2">
                                     <i class="fas fa-sync-alt"></i> Mettre à jour
                                 </button>
-                                <a href="?empty=1" class="btn btn-outline-danger" onclick="return confirm('Vider tout le panier ?')">
-                                    <i class="fas fa-trash-alt"></i> Vider
-                                </a>
+                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Vider tout le panier ?')">
+                                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                    <button type="submit" name="empty" value="1" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash-alt"></i> Vider
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

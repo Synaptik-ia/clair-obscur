@@ -181,6 +181,26 @@ function redirigerSiNonAdmin() {
 }
 
 /**
+ * Valide une URL de redirection pour éviter les open redirects.
+ * N'accepte que les URLs internes (relatives ou préfixées par SITE_URL).
+ */
+function safeRedirect($url, $fallback) {
+    $url = trim((string)$url);
+    if ($url === '') {
+        return $fallback;
+    }
+    // URL relative interne (mais pas //evil.com protocol-relative)
+    if (preg_match('#^/(?!/)#', $url)) {
+        return $url;
+    }
+    // URL absolue du site uniquement
+    if (strpos($url, SITE_URL) === 0) {
+        return $url;
+    }
+    return $fallback;
+}
+
+/**
  * Nettoie une entrée pour le SEO
  */
 function slugify($text) {

@@ -11,8 +11,20 @@ $keywords = "actualités Clair-Obscur Éditions;news maison d’édition;annonce
 
 // Traitement newsletter (avant tout output HTML)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_email'])) {
-    $_SESSION['flash_message'] = "Merci de votre inscription à notre newsletter !";
-    $_SESSION['flash_type'] = "success";
+    $newsletter_email = trim($_POST['newsletter_email']);
+    if (filter_var($newsletter_email, FILTER_VALIDATE_EMAIL)) {
+        $result = newsletter_subscribe($newsletter_email);
+        if ($result['status'] === 'already_subscribed') {
+            $_SESSION['flash_message'] = "Vous êtes déjà inscrit à notre newsletter.";
+            $_SESSION['flash_type'] = "info";
+        } else {
+            $_SESSION['flash_message'] = "Merci ! Un email de confirmation vous a été envoyé. Cliquez sur le lien pour valider votre inscription.";
+            $_SESSION['flash_type'] = "success";
+        }
+    } else {
+        $_SESSION['flash_message'] = "Veuillez entrer une adresse email valide.";
+        $_SESSION['flash_type'] = "danger";
+    }
     header('Location: index.php');
     exit();
 }
@@ -86,7 +98,7 @@ include '../includes/header.php';
     } else {
         $extrait = $extrait . '...';
     }
-    echo htmlspecialchars_decode(cleanXSS($extrait));
+    echo cleanXSS($extrait);
     ?>
 </p>
                         <a href="article.php?id=<?php echo $nouvelle['id']; ?>" class="btn btn-outline-primary">

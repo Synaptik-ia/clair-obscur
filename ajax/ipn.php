@@ -102,13 +102,21 @@ if (strcmp($res, "VERIFIED") == 0) {
                         ':mc_currency' => $mc_currency
                     ]);
                     
-                    // Générer le lien de téléchargement si c'est un ebook
-                    $sql_type = "SELECT type_commande FROM commandes WHERE id = :id";
-                    $stmt_type = $conn->prepare($sql_type);
-                    $stmt_type->execute([':id' => $commande_id]);
-                    $type_info = $stmt_type->fetch();
+                    // Générer le lien de téléchargement si la commande contient un ebook
+                    // (commande globale 'ebook' ou ligne de détail 'ebook' pour les paniers mixtes)
+                    $has_ebook = ($commande['type_commande'] ?? '') == 'ebook';
+                    try {
+                        $sql_ebook = "SELECT COUNT(*) as nb FROM details_commandes WHERE commande_id = :id AND type_commande = 'ebook'";
+                        $stmt_ebook = $conn->prepare($sql_ebook);
+                        $stmt_ebook->execute([':id' => $commande_id]);
+                        if ($stmt_ebook->fetch()['nb'] > 0) {
+                            $has_ebook = true;
+                        }
+                    } catch (PDOException $e) {
+                        // Colonne type_commande absente (migration non appliquée)
+                    }
                     
-                    if ($type_info && $type_info['type_commande'] == 'ebook') {
+                    if ($has_ebook) {
                         genererLienTelechargement($commande_id, 0);
                     }
                     

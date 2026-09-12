@@ -45,10 +45,10 @@ if ($is_edit) {
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $auteur['nom'] = cleanSQL(trim($_POST['nom'] ?? ''));
-    $auteur['biographie'] = cleanSQL(trim($_POST['biographie'] ?? ''));
-    $auteur['seo_title'] = cleanSQL(trim($_POST['seo_title'] ?? ''));
-    $auteur['seo_description'] = cleanSQL(trim($_POST['seo_description'] ?? ''));
+    $auteur['nom'] = trim($_POST['nom'] ?? '');
+    $auteur['biographie'] = trim($_POST['biographie'] ?? '');
+    $auteur['seo_title'] = trim($_POST['seo_title'] ?? '');
+    $auteur['seo_description'] = trim($_POST['seo_description'] ?? '');
     
     $erreurs = [];
     

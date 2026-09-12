@@ -32,9 +32,9 @@ if ($edit_livre_id > 0) {
 // Traitement du formulaire d'ajout/modification de livre
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_livre'])) {
     $id = (int)$_POST['livre_id'];
-    $titre = cleanSQL(trim($_POST['titre'] ?? ''));
-    $slug = cleanSQL(trim($_POST['slug'] ?? ''));
-    $description = cleanSQL(trim($_POST['description'] ?? ''));
+    $titre = trim($_POST['titre'] ?? '');
+    $slug = trim($_POST['slug'] ?? '');
+    $description = trim($_POST['description'] ?? '');
     
     $erreurs = [];
     
@@ -171,8 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_livre'])) {
 }
 
 // Suppression d'un livre
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $id = (int)$_POST['delete'];
     
     // Récupérer les images
     $sql_img = "SELECT image_couverture, image_4eme FROM liseuse_livres WHERE id = :id";
@@ -391,9 +391,12 @@ include '../includes/header.php';
                                             <a href="<?php echo SITE_URL; ?>liseuse/<?php echo cleanXSS($livre['slug']); ?>" class="btn btn-sm btn-success" title="Lire le livre" target="_blank">
                                                 <i class="fas fa-eye"></i> Lire
                                             </a>
-                                            <a href="?delete=<?php echo $livre['id']; ?>" class="btn btn-sm btn-danger" title="Supprimer" onclick="return confirm('Supprimer ce livre et toutes ses pages ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer ce livre et toutes ses pages ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <button type="submit" name="delete" value="<?php echo $livre['id']; ?>" class="btn btn-sm btn-danger" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                          </span>
                                     </tr>
                                     <?php endforeach; ?>

@@ -39,10 +39,9 @@ if (!$commande) {
     exit();
 }
 
-// Mettre à jour le statut de la commande
-$sql_update = "UPDATE commandes SET statut = 'paye' WHERE id = :id AND statut = 'en_attente'";
-$stmt_update = $conn->prepare($sql_update);
-$stmt_update->execute([':id' => $commande_id]);
+// IMPORTANT : ne JAMAIS marquer la commande payée ici.
+// L'URL de retour est visible côté client — seule la notification IPN
+// (vérifiée auprès de PayPal dans ajax/ipn.php) peut passer la commande à 'paye'.
 
 // Récupérer les livres de la commande pour générer les liens
 $sql_details = "SELECT dc.*, l.fichier_pdf, l.titre 
@@ -53,15 +52,22 @@ $stmt_details = $conn->prepare($sql_details);
 $stmt_details->execute([':commande_id' => $commande_id]);
 $details = $stmt_details->fetchAll();
 
-// Générer un lien de téléchargement unique si c'est un ebook
-$lien_telechargement = null;
+// La commande contient un ebook si son type global est 'ebook'
+// ou si une ligne de détail porte le type 'ebook' (commande mixte)
+$has_ebook = ($commande['type_commande'] == 'ebook');
 foreach ($details as $detail) {
-    // Si au moins un ebook, générer un lien global pour la commande
-    // (on vérifie le type via la commande)
-    if ($commande['type_commande'] == 'ebook') {
-        $lien_telechargement = genererLienTelechargement($commande_id, $detail['livre_id']);
+    if (isset($detail['type_commande']) && $detail['type_commande'] == 'ebook') {
+        $has_ebook = true;
         break;
     }
+}
+
+// Si l'IPN a déjà confirmé le paiement, générer le lien de téléchargement
+$lien_telechargement = null;
+if ($commande['statut'] == 'paye' && $has_ebook && empty($commande['lien_telechargement_unique'])) {
+    $lien_telechargement = genererLienTelechargement($commande_id, $details[0]['livre_id']);
+} elseif ($commande['statut'] == 'paye' && !empty($commande['lien_telechargement_unique'])) {
+    $lien_telechargement = SITE_URL . 'download.php?token=' . $commande['lien_telechargement_unique'];
 }
 
 // Nettoyer la session de paiement en attente
@@ -77,13 +83,24 @@ include '../includes/header.php';
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div class="card shadow-sm text-center">
+                <?php if ($commande['statut'] == 'paye'): ?>
                 <div class="card-header bg-success text-white">
                     <i class="fas fa-check-circle fa-3x"></i>
                     <h3 class="mb-0 mt-2">Paiement confirmé !</h3>
                 </div>
+                <?php else: ?>
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-clock fa-3x"></i>
+                    <h3 class="mb-0 mt-2">Paiement en cours de confirmation</h3>
+                </div>
+                <?php endif; ?>
                 <div class="card-body">
                     <h4>Merci pour votre commande !</h4>
-                    <p class="lead">Votre paiement a été accepté avec succès.</p>
+                    <?php if ($commande['statut'] == 'paye'): ?>
+                        <p class="lead">Votre paiement a été accepté avec succès.</p>
+                    <?php else: ?>
+                        <p class="lead">PayPal confirme votre paiement. Cela prend généralement quelques secondes.</p>
+                    <?php endif; ?>
                     
                     <div class="alert alert-info">
                         <strong>Référence commande :</strong> <?php echo htmlspecialchars($commande['reference']); ?>
@@ -118,7 +135,7 @@ include '../includes/header.php';
                         </div>
                     </div>
                     
-                    <?php if ($commande['type_commande'] == 'ebook' && $lien_telechargement): ?>
+                    <?php if ($has_ebook && $lien_telechargement): ?>
                         <div class="alert alert-success mt-4">
                             <i class="fas fa-download"></i> 
                             <strong>Votre livre est prêt à être téléchargé !</strong><br>
@@ -127,6 +144,13 @@ include '../includes/header.php';
                         <a href="<?php echo $lien_telechargement; ?>" class="btn btn-success btn-lg mt-2">
                             <i class="fas fa-download"></i> Télécharger mon PDF
                         </a>
+                    <?php elseif ($has_ebook): ?>
+                        <div class="alert alert-info mt-4">
+                            <i class="fas fa-hourglass-half"></i>
+                            <strong>Votre ebook sera disponible dès confirmation du paiement.</strong><br>
+                            Retrouvez votre lien de téléchargement dans 
+                            <a href="<?php echo SITE_URL; ?>compte/commandes.php">Mes commandes</a>.
+                        </div>
                     <?php elseif ($commande['type_commande'] != 'ebook'): ?>
                         <div class="alert alert-warning mt-4">
                             <i class="fas fa-truck"></i> 

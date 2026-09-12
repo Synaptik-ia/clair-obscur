@@ -18,8 +18,8 @@ $message = '';
 $message_type = '';
 
 // Suppression d'un livre
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $id = (int)$_POST['delete'];
     
     // Vérifier si le livre existe
     $sql_check = "SELECT fichier_pdf, couverture FROM livres WHERE id = :id";
@@ -59,7 +59,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 15;
 $offset = ($page - 1) * $limit;
 
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $sql_count = "SELECT COUNT(*) as total FROM livres l LEFT JOIN auteurs a ON l.auteur_id = a.id";
 $sql_livres = "SELECT l.*, a.nom as auteur_nom 
@@ -184,9 +184,12 @@ include '../includes/header.php';
                                             <a href="livre_form.php?id=<?php echo $livre['id']; ?>" class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="?delete=<?php echo $livre['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce livre définitivement ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer ce livre définitivement ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <button type="submit" name="delete" value="<?php echo $livre['id']; ?>" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                             <a href="<?php echo SITE_URL; ?>livres/fiche.php?id=<?php echo $livre['id']; ?>" class="btn btn-sm btn-info" target="_blank">
                                                 <i class="fas fa-eye"></i>
                                             </a>

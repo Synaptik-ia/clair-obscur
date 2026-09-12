@@ -52,7 +52,7 @@ if (isset($_POST['generate_link']) && isset($_POST['commande_id'])) {
 }
 
 // Filtres
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $statut_filter = isset($_GET['statut']) ? $_GET['statut'] : '';
 $type_filter = isset($_GET['type']) ? $_GET['type'] : '';
 

@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql_update = "UPDATE seo_settings SET setting_value = :value WHERE setting_key = :key";
             $stmt_update = $conn->prepare($sql_update);
             $stmt_update->execute([
-                ':value' => cleanSQL(trim($value)),
+                ':value' => trim($value),
                 ':key' => $key
             ]);
         }

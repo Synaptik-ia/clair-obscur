@@ -19,12 +19,12 @@ $db = new Database();
 $conn = $db->getConnection();
 
 // Rechercher la commande correspondant au token
+// (pas de filtre sur type_commande : une commande mixte peut contenir un ebook)
 $sql = "SELECT c.*, u.id as user_id 
         FROM commandes c 
         JOIN utilisateurs u ON c.utilisateur_id = u.id 
         WHERE c.lien_telechargement_unique = :token 
-        AND c.statut = 'paye' 
-        AND c.type_commande = 'ebook'";
+        AND c.statut = 'paye'";
 $stmt = $conn->prepare($sql);
 $stmt->execute([':token' => $token]);
 $commande = $stmt->fetch();
@@ -45,15 +45,33 @@ if (time() > $date_expiration) {
     die("Ce lien de téléchargement a expiré (valable 48h). Veuillez contacter le support.");
 }
 
-// Récupérer le livre associé à la commande
-$sql_livre = "SELECT dc.livre_id, l.fichier_pdf, l.titre 
-              FROM details_commandes dc 
-              JOIN livres l ON dc.livre_id = l.id 
-              WHERE dc.commande_id = :commande_id 
-              LIMIT 1";
-$stmt_livre = $conn->prepare($sql_livre);
-$stmt_livre->execute([':commande_id' => $commande['id']]);
-$livre = $stmt_livre->fetch();
+// Récupérer le livre ebook associé à la commande
+// (priorité aux lignes 'ebook' pour les commandes mixtes)
+$livre = null;
+try {
+    $sql_livre = "SELECT dc.livre_id, l.fichier_pdf, l.titre 
+                  FROM details_commandes dc 
+                  JOIN livres l ON dc.livre_id = l.id 
+                  WHERE dc.commande_id = :commande_id AND dc.type_commande = 'ebook'
+                  ORDER BY dc.id ASC
+                  LIMIT 1";
+    $stmt_livre = $conn->prepare($sql_livre);
+    $stmt_livre->execute([':commande_id' => $commande['id']]);
+    $livre = $stmt_livre->fetch();
+} catch (PDOException $e) {
+    // Colonne type_commande absente (migration non appliquée)
+}
+if (!$livre) {
+    $sql_livre = "SELECT dc.livre_id, l.fichier_pdf, l.titre 
+                  FROM details_commandes dc 
+                  JOIN livres l ON dc.livre_id = l.id 
+                  WHERE dc.commande_id = :commande_id 
+                  ORDER BY dc.id ASC
+                  LIMIT 1";
+    $stmt_livre = $conn->prepare($sql_livre);
+    $stmt_livre->execute([':commande_id' => $commande['id']]);
+    $livre = $stmt_livre->fetch();
+}
 
 if (!$livre || empty($livre['fichier_pdf'])) {
     die("Fichier PDF introuvable.");
@@ -66,15 +84,19 @@ if (!file_exists($file_path)) {
     die("Le fichier demandé n'existe pas sur le serveur.");
 }
 
-// Enregistrer le téléchargement dans les logs (optionnel)
-$sql_log = "INSERT INTO logs_telechargements (commande_id, utilisateur_id, ip_address, date_telechargement) 
-            VALUES (:commande_id, :user_id, :ip, NOW())";
-$stmt_log = $conn->prepare($sql_log);
-$stmt_log->execute([
-    ':commande_id' => $commande['id'],
-    ':user_id' => $_SESSION['user_id'],
-    ':ip' => $_SERVER['REMOTE_ADDR']
-]);
+// Enregistrer le téléchargement dans les logs (optionnel, non bloquant)
+try {
+    $sql_log = "INSERT INTO logs_telechargements (commande_id, utilisateur_id, ip_address, date_telechargement) 
+                VALUES (:commande_id, :user_id, :ip, NOW())";
+    $stmt_log = $conn->prepare($sql_log);
+    $stmt_log->execute([
+        ':commande_id' => $commande['id'],
+        ':user_id' => $_SESSION['user_id'],
+        ':ip' => $_SERVER['REMOTE_ADDR']
+    ]);
+} catch (PDOException $e) {
+    error_log("Log téléchargement impossible: " . $e->getMessage());
+}
 
 // Forcer le téléchargement
 header('Content-Type: application/pdf');

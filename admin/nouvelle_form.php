@@ -45,12 +45,12 @@ if ($is_edit) {
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nouvelle['titre'] = cleanSQL(trim($_POST['titre'] ?? ''));
+    $nouvelle['titre'] = trim($_POST['titre'] ?? '');
     // NE PAS nettoyer avec cleanXSS ici car cela encode le HTML
     // On garde le HTML brut tel que fourni par CKEditor
     $nouvelle['contenu'] = $_POST['contenu'] ?? '';
-    $nouvelle['seo_title'] = cleanSQL(trim($_POST['seo_title'] ?? ''));
-    $nouvelle['seo_description'] = cleanSQL(trim($_POST['seo_description'] ?? ''));
+    $nouvelle['seo_title'] = trim($_POST['seo_title'] ?? '');
+    $nouvelle['seo_description'] = trim($_POST['seo_description'] ?? '');
     
     // Protection contre les injections XSS (sans double encoder)
     // On autorise les balises HTML sécurisées
@@ -261,7 +261,7 @@ include '../includes/header.php';
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label class="form-label">Titre *</label>
-                                    <input type="text" name="titre" id="titre" class="form-control" value="<?php echo htmlspecialchars_decode(cleanXSS($nouvelle['titre'])); ?>" required>
+                                    <input type="text" name="titre" id="titre" class="form-control" value="<?php echo cleanXSS($nouvelle['titre']); ?>" required>
                                 </div>
                                 
                                 <div class="mb-3">

@@ -17,8 +17,8 @@ $message = '';
 $message_type = '';
 
 // Validation d'un commentaire
-if (isset($_GET['valider']) && is_numeric($_GET['valider'])) {
-    $id = (int)$_GET['valider'];
+if (isset($_POST['valider']) && is_numeric($_POST['valider'])) {
+    $id = (int)$_POST['valider'];
     $sql = "UPDATE commentaires SET status = 'valide' WHERE id = :id";
     $stmt = $conn->prepare($sql);
     if ($stmt->execute([':id' => $id])) {
@@ -31,8 +31,8 @@ if (isset($_GET['valider']) && is_numeric($_GET['valider'])) {
 }
 
 // Suppression d'un commentaire
-if (isset($_GET['supprimer']) && is_numeric($_GET['supprimer'])) {
-    $id = (int)$_GET['supprimer'];
+if (isset($_POST['supprimer']) && is_numeric($_POST['supprimer'])) {
+    $id = (int)$_POST['supprimer'];
     $sql = "DELETE FROM commentaires WHERE id = :id";
     $stmt = $conn->prepare($sql);
     if ($stmt->execute([':id' => $id])) {
@@ -45,8 +45,8 @@ if (isset($_GET['supprimer']) && is_numeric($_GET['supprimer'])) {
 }
 
 // Filtres
-$status_filter = isset($_GET['status']) ? $_GET['status'] : 'en_attente';
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$status_filter = $_REQUEST['status'] ?? 'en_attente';
+$search = isset($_REQUEST['search']) ? trim($_REQUEST['search']) : '';
 
 // Récupération de la liste des commentaires
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -257,13 +257,23 @@ include '../includes/header.php';
                                         </td>
                                         <td>
                                             <?php if ($commentaire['status'] == 'en_attente'): ?>
-                                                <a href="?valider=<?php echo $commentaire['id']; ?>&status=<?php echo $status_filter; ?>&search=<?php echo urlencode($search); ?>" class="btn btn-sm btn-success">
-                                                    <i class="fas fa-check"></i>
-                                                </a>
+                                                <form method="POST" style="display:inline;">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status_filter); ?>">
+                                                    <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                                    <button type="submit" name="valider" value="<?php echo $commentaire['id']; ?>" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
                                             <?php endif; ?>
-                                            <a href="?supprimer=<?php echo $commentaire['id']; ?>&status=<?php echo $status_filter; ?>&search=<?php echo urlencode($search); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce commentaire définitivement ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer ce commentaire définitivement ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <input type="hidden" name="status" value="<?php echo htmlspecialchars($status_filter); ?>">
+                                                <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                                <button type="submit" name="supprimer" value="<?php echo $commentaire['id']; ?>" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                             <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modal-<?php echo $commentaire['id']; ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
@@ -333,13 +343,23 @@ include '../includes/header.php';
             </div>
             <div class="modal-footer">
                 <?php if ($commentaire['status'] == 'en_attente'): ?>
-                    <a href="?valider=<?php echo $commentaire['id']; ?>&status=<?php echo $status_filter; ?>&search=<?php echo urlencode($search); ?>" class="btn btn-success">
-                        <i class="fas fa-check"></i> Valider
-                    </a>
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status_filter); ?>">
+                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                        <button type="submit" name="valider" value="<?php echo $commentaire['id']; ?>" class="btn btn-success">
+                            <i class="fas fa-check"></i> Valider
+                        </button>
+                    </form>
                 <?php endif; ?>
-                <a href="?supprimer=<?php echo $commentaire['id']; ?>&status=<?php echo $status_filter; ?>&search=<?php echo urlencode($search); ?>" class="btn btn-danger" onclick="return confirm('Supprimer ce commentaire ?')">
-                    <i class="fas fa-trash"></i> Supprimer
-                </a>
+                <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer ce commentaire ?')">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status_filter); ?>">
+                    <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                    <button type="submit" name="supprimer" value="<?php echo $commentaire['id']; ?>" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </form>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
             </div>
         </div>

@@ -97,17 +97,34 @@ $stmt_commande->execute([
 
 $commande_id = $conn->lastInsertId();
 
-// Ajouter les détails de la commande
-$sql_detail = "INSERT INTO details_commandes (commande_id, livre_id, quantite, prix_unitaire) VALUES (:commande_id, :livre_id, :quantite, :prix)";
+// Ajouter les détails de la commande (type par ligne pour gérer les paniers mixtes)
+// Détecter si la colonne type_commande existe (migration_details_type_commande.sql)
+$has_type_col = false;
+try {
+    $conn->query("SELECT type_commande FROM details_commandes LIMIT 1");
+    $has_type_col = true;
+} catch (PDOException $e) {
+    $has_type_col = false;
+}
+
+if ($has_type_col) {
+    $sql_detail = "INSERT INTO details_commandes (commande_id, livre_id, quantite, prix_unitaire, type_commande) VALUES (:commande_id, :livre_id, :quantite, :prix, :type_commande)";
+} else {
+    $sql_detail = "INSERT INTO details_commandes (commande_id, livre_id, quantite, prix_unitaire) VALUES (:commande_id, :livre_id, :quantite, :prix)";
+}
 $stmt_detail = $conn->prepare($sql_detail);
 
 foreach ($panier_details as $item) {
-    $stmt_detail->execute([
+    $params = [
         ':commande_id' => $commande_id,
         ':livre_id' => $item['id'],
         ':quantite' => $item['quantite'],
         ':prix' => $item['prix_unitaire']
-    ]);
+    ];
+    if ($has_type_col) {
+        $params[':type_commande'] = $item['type'];
+    }
+    $stmt_detail->execute($params);
 }
 
 // Configuration PayPal (REST API simplifiée - redirection)
@@ -115,7 +132,15 @@ foreach ($panier_details as $item) {
 // Ici nous utilisons une approche par redirection (PayPal Standard)
 
 $paypal_url = (PAYPAL_MODE == 'live') ? 'https://www.paypal.com/cgi-bin/webscr' : 'https://www.sandbox.paypal.com/cgi-bin/webscr';
-$business_email = 'votre-email-paypal@example.com'; // À remplacer
+$business_email = env('PAYPAL_BUSINESS_EMAIL', '');
+
+// Impossible de payer sans compte PayPal configuré
+if (empty($business_email)) {
+    $_SESSION['flash_message'] = "Le paiement en ligne n'est pas configuré. Veuillez nous contacter.";
+    $_SESSION['flash_type'] = "danger";
+    header('Location: ' . SITE_URL . 'panier/');
+    exit();
+}
 
 // Générer un token temporaire pour la validation après paiement
 $payment_token = bin2hex(random_bytes(32));

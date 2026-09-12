@@ -43,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $user = $stmt->fetch();
             
             if ($user) {
-                // Générer un code de réinitialisation
-                $reset_code = sprintf("%06d", mt_rand(0, 999999));
+                // Générer un code de réinitialisation (aléatoire cryptographique)
+                $reset_code = sprintf("%06d", random_int(0, 999999));
                 $expires = date('Y-m-d H:i:s', strtotime('+15 minutes'));
                 
                 // Stocker le code en base
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // En production, utilisez PHPMailer pour un envoi fiable
                 if (mail($to, $subject, $body, $headers)) {
                     $_SESSION['reset_email'] = $email;
-                    $_SESSION['reset_code'] = $reset_code;
+                    $_SESSION['reset_attempts'] = 0;
                     $step = 2;
                     $message = "Un code de validation a été envoyé à votre adresse email.";
                     $message_type = "success";
@@ -111,12 +111,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             
             if ($reset) {
                 $_SESSION['reset_verified'] = true;
+                unset($_SESSION['reset_attempts']);
                 $step = 3;
                 $message = "Code vérifié. Veuillez choisir un nouveau mot de passe.";
                 $message_type = "success";
             } else {
-                $message = "Code invalide ou expiré. Veuillez recommencer.";
-                $message_type = "danger";
+                // Limiter les tentatives pour empêcher le brute-force du code à 6 chiffres
+                $_SESSION['reset_attempts'] = ($_SESSION['reset_attempts'] ?? 0) + 1;
+                if ($_SESSION['reset_attempts'] >= 5) {
+                    $sql_del = "DELETE FROM password_resets WHERE email = :email";
+                    $stmt_del = $conn->prepare($sql_del);
+                    $stmt_del->execute([':email' => $email]);
+                    unset($_SESSION['reset_email'], $_SESSION['reset_verified'], $_SESSION['reset_attempts']);
+                    $step = 1;
+                    $message = "Trop de tentatives. Le code a été invalidé, veuillez recommencer la procédure.";
+                    $message_type = "danger";
+                } else {
+                    $message = "Code invalide ou expiré. Il vous reste " . (5 - $_SESSION['reset_attempts']) . " tentative(s).";
+                    $message_type = "danger";
+                }
             }
         }
     }

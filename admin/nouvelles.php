@@ -18,8 +18,8 @@ $message = '';
 $message_type = '';
 
 // Suppression d'une nouvelle
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $id = (int)$_POST['delete'];
     
     // Récupérer l'image pour suppression
     $sql_image = "SELECT image FROM nouvelles WHERE id = :id";
@@ -53,7 +53,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 15;
 $offset = ($page - 1) * $limit;
 
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $sql_count = "SELECT COUNT(*) as total FROM nouvelles";
 $sql_nouvelles = "SELECT * FROM nouvelles";
@@ -208,9 +208,12 @@ include '../includes/header.php';
                                                 <a href="<?php echo SITE_URL; ?>nouvelles/article.php?id=<?php echo $nouvelle['id']; ?>" class="btn btn-sm btn-info" title="Voir sur le site" target="_blank">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="?delete=<?php echo $nouvelle['id']; ?>" class="btn btn-sm btn-danger" title="Supprimer" onclick="return confirm('Supprimer cette nouvelle définitivement ?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
+                                                <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer cette nouvelle définitivement ?')">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                    <button type="submit" name="delete" value="<?php echo $nouvelle['id']; ?>" class="btn btn-sm btn-danger" title="Supprimer">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

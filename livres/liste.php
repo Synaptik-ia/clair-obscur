@@ -16,7 +16,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 9;
 $offset = ($page - 1) * $limit;
 
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $statut_filter = isset($_GET['statut']) ? $_GET['statut'] : '';
 $tri = isset($_GET['tri']) ? $_GET['tri'] : 'recent';
 

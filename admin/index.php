@@ -272,12 +272,18 @@ include '../includes/header.php';
                                                 <p class="mb-0 small mt-1"><?php echo substr(htmlspecialchars($commentaire['commentaire']), 0, 100); ?>...</p>
                                             </div>
                                             <div>
-                                                <a href="commentaires.php?action=valider&id=<?php echo $commentaire['id']; ?>" class="btn btn-sm btn-success">
-                                                    <i class="fas fa-check"></i>
-                                                </a>
-                                                <a href="commentaires.php?action=supprimer&id=<?php echo $commentaire['id']; ?>" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
+                                                <form method="POST" action="commentaires.php" style="display:inline;">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                                                    <button type="submit" name="valider" value="<?php echo $commentaire['id']; ?>" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                <form method="POST" action="commentaires.php" style="display:inline;" onsubmit="return confirm('Supprimer ce commentaire ?')">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                                                    <button type="submit" name="supprimer" value="<?php echo $commentaire['id']; ?>" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>

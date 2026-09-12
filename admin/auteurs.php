@@ -18,8 +18,8 @@ $message = '';
 $message_type = '';
 
 // Suppression d'un auteur
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $id = (int)$_POST['delete'];
     
     // Vérifier si l'auteur a des livres
     $sql_check = "SELECT COUNT(*) as total FROM livres WHERE auteur_id = :id";
@@ -64,7 +64,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 15;
 $offset = ($page - 1) * $limit;
 
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $sql_count = "SELECT COUNT(*) as total FROM auteurs";
 $sql_auteurs = "SELECT * FROM auteurs";
@@ -175,9 +175,12 @@ include '../includes/header.php';
                                             <a href="auteur_form.php?id=<?php echo $auteur['id']; ?>" class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="?delete=<?php echo $auteur['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cet auteur définitivement ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer cet auteur définitivement ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <button type="submit" name="delete" value="<?php echo $auteur['id']; ?>" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                             <a href="<?php echo SITE_URL; ?>auteurs/fiche.php?id=<?php echo $auteur['id']; ?>" class="btn btn-sm btn-info" target="_blank">
                                                 <i class="fas fa-eye"></i>
                                             </a>

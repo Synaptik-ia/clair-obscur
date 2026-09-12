@@ -9,7 +9,7 @@ $db = new Database();
 $conn = $db->getConnection();
 
 // Récupérer le slug depuis l'URL
-$slug = isset($_GET['slug']) ? cleanSQL($_GET['slug']) : '';
+$slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
 $livre_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Si aucun slug n'est fourni, essayer de récupérer depuis l'URL
@@ -19,7 +19,7 @@ if (empty($slug) && $livre_id == 0) {
     $segments = explode('/', trim($path, '/'));
     
     if (isset($segments[0]) && $segments[0] == 'liseuse' && isset($segments[1])) {
-        $slug = cleanSQL($segments[1]);
+        $slug = trim($segments[1]);
     }
 }
 

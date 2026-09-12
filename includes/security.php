@@ -18,13 +18,10 @@ function cleanXSS($data) {
     if (is_array($data)) {
         return array_map('cleanXSS', $data);
     }
-    // Supprimer les balises HTML potentiellement dangereuses
-    $allowed_tags = '<p><br><strong><em><u><h1><h2><h3><h4><h5><h6><ul><ol><li><a><img><span><div><blockquote><pre><code><table><tr><td><th><thead><tbody><tfoot><hr>';
-    $data = strip_tags($data, $allowed_tags);
-    // Convertir les entités HTML
-    $data = htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    $data = html_entity_decode($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    return $data;
+    // Supprimer toutes les balises puis échapper pour un affichage sûr.
+    // (Ne PAS faire htmlspecialchars + html_entity_decode : les deux s'annulent
+    // et laissent passer les attributs dangereux type onerror=/javascript:)
+    return htmlspecialchars(strip_tags($data), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
 /**

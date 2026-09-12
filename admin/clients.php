@@ -17,8 +17,8 @@ $message = '';
 $message_type = '';
 
 // Suppression d'un client
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $id = (int)$_POST['delete'];
     
     $sql_check = "SELECT is_admin FROM utilisateurs WHERE id = :id";
     $stmt_check = $conn->prepare($sql_check);
@@ -56,7 +56,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 15;
 $offset = ($page - 1) * $limit;
 
-$search = isset($_GET['search']) ? cleanSQL(trim($_GET['search'])) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $sql_count = "SELECT COUNT(*) as total FROM utilisateurs WHERE is_admin = 0";
 $sql_clients = "SELECT * FROM utilisateurs WHERE is_admin = 0";
@@ -211,9 +211,12 @@ include '../includes/header.php';
                                             <a href="client_detail.php?id=<?php echo $client['id']; ?>" class="btn btn-sm btn-secondary">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="?delete=<?php echo $client['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce client définitivement ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Supprimer ce client définitivement ?')">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <button type="submit" name="delete" value="<?php echo $client['id']; ?>" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                          </span>
                                     </tr>
                                     <?php endforeach; ?>

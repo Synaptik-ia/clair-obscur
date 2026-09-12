@@ -52,7 +52,7 @@ if ($edit_page_id > 0) {
 // Traitement du formulaire d'ajout/modification de page (avec image)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_page'])) {
     $page_num = (int)$_POST['page_num'];
-    $titre = cleanSQL(trim($_POST['titre'] ?? ''));
+    $titre = trim($_POST['titre'] ?? '');
     $image_page = '';
     
     $erreurs = [];

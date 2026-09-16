@@ -45,7 +45,7 @@ RewriteBase /
     Header set X-Frame-Options "SAMEORIGIN"
     
     # Politique de sécurité du contenu (CSP)
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; frame-src https://www.paypal.com https://www.sandbox.paypal.com; connect-src 'self' https://www.google-analytics.com https://*.n8n.cloud;"
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; frame-src https://www.paypal.com https://www.sandbox.paypal.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.n8n.cloud;"
     
     # HSTS (HTTP Strict Transport Security)
     Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"

@@ -917,7 +917,7 @@ main {
 }
 
 .dropdown-item {
-    color: var(--obscur);
+    color: var(--obscur2);
     transition: all 0.3s ease;
 }
 

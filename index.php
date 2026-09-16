@@ -82,12 +82,20 @@ include 'includes/header.php';
 ?>
 
 <!-- Hero Banner -->
-<section class="text-center py-5 mb-4 p-4 bg-dark text-white text-center rounded">
-    <div class="container">
-        <h1 class="display-4 fw-bold">Clair-Obscur</h1>
-        <p class="lead">Maison d'édition indépendante - Littérature pour adultes</p>
-        <p class="mb-4">Plongez dans des univers uniques, entre ombre et lumière</p>
-        <a href="<?php echo SITE_URL; ?>livres/liste.php" class="btn btn-primary btn-lg">
+<section class="hero-banner mb-4 rounded" style="background-image: url('<?php echo SITE_URL; ?>assets/images/banniere.png');">
+    <div class="banner-overlay"></div>
+    <div class="banner-content">
+        <h1 class="banner-title">
+            <span class="clair">Clair</span><span class="trait">-</span><span class="obscur">Obscur</span>
+        </h1>
+        <p class="banner-subtitle">Maison d'édition indépendante</p>
+        <div class="banner-divider">
+            <span class="divider-line"></span>
+            <i class="fas fa-feather-alt"></i>
+            <span class="divider-line"></span>
+        </div>
+        <p class="banner-tagline">Plongez dans des univers uniques, entre ombre et lumière</p>
+        <a href="<?php echo SITE_URL; ?>livres/liste.php" class="btn btn-primary btn-lg mt-4">
             <i class="fas fa-book"></i> Découvrir nos livres
         </a>
     </div>

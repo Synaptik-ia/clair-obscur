@@ -23,7 +23,6 @@ Documentation technique du site **Clair-Obscur Éditions** pour aider les IA à 
 | `includes/` | `header.php`, `footer.php`, `functions.php`, `security.php` |
 | `liseuse/` | Lecteur d'extraits en ligne (flipbook turn.js) |
 | `paiement/`, `panier/` | Tunnel d'achat PayPal |
-| `synaptik/` | Sous-site indépendant (header/footer propres) — ne pas mélanger avec le site principal |
 | `tests/` | Tests standalone exécutés via `php tests/runtests.php` |
 
 ## Configuration
